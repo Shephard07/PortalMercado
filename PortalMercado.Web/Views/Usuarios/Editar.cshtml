@@ -1,0 +1,31 @@
+@using PortalMercado.Application.Administration
+@model UserDto
+@{ ViewData["Title"] = "Cuenta de usuario"; var catalog = (AdminCatalog)ViewBag.Catalog; var access = (AccessSnapshot)ViewBag.Access; var canChange = Model.IdUsuario != access.UserId; }
+<h1>@Model.Nombre</h1><p>@Model.Correo · @(Model.Activo ? "Activo" : "Inactivo")</p>
+@if (Model.PendienteMfa) { <p class="alert alert-info">Enrolamiento MFA pendiente. El usuario debe iniciar sesión y configurar su segundo factor.</p> }
+@if (canChange && access.Has(Permissions.Edit)) {
+<form asp-action="Editar" asp-route-id="@Model.IdUsuario" method="post" class="col-lg-6 mb-4">
+<label for="Nombre" class="form-label">Nombre</label><input id="Nombre" name="Nombre" value="@Model.Nombre" maxlength="150" required class="form-control mb-2" />
+<label for="Telefono" class="form-label">Teléfono</label><input id="Telefono" name="Telefono" value="@Model.Telefono" maxlength="30" class="form-control mb-2" />
+<button class="btn btn-primary">Guardar datos</button></form>
+}
+@if (canChange && access.Has(Permissions.State)) {
+<form asp-action="Estado" asp-route-id="@Model.IdUsuario" method="post" class="mb-4"><input type="hidden" name="activo" value="@((!Model.Activo).ToString())" /><button class="btn btn-outline-danger">@(Model.Activo ? "Desactivar cuenta" : "Activar cuenta")</button></form>
+}
+@if (canChange && access.Has(Permissions.Roles)) {
+<form asp-action="Roles" asp-route-id="@Model.IdUsuario" method="post" class="mb-4"><fieldset><legend class="fs-5">Roles</legend>
+@foreach (var r in catalog.Roles) { <label class="d-block"><input type="checkbox" name="Ids" value="@r.IdRol" checked="@Model.Roles.Contains(r.Codigo)" /> @r.Codigo</label> }
+</fieldset><button class="btn btn-outline-primary mt-2">Guardar roles</button></form>
+}
+@if (canChange && access.Has(Permissions.Businesses)) {
+<form asp-action="Negocios" asp-route-id="@Model.IdUsuario" method="post" class="mb-4"><fieldset><legend class="fs-5">Negocios autorizados</legend>
+@foreach (var n in catalog.Negocios) { <label class="d-block"><input type="checkbox" name="Ids" value="@n.Id" checked="@Model.Negocios.Contains(n.Id)" /> @n.Nombre</label> }
+</fieldset><button class="btn btn-outline-primary mt-2">Guardar negocios</button></form>
+}
+@if (canChange && access.Has(Permissions.Markets)) {
+<form asp-action="Mercados" asp-route-id="@Model.IdUsuario" method="post" class="mb-4"><fieldset><legend class="fs-5">Mercados asignados</legend>
+@foreach (var m in catalog.Mercados) { <label class="d-block"><input type="checkbox" name="Ids" value="@m.Id" checked="@Model.Mercados.Contains(m.Id)" /> @m.Nombre</label> }
+</fieldset><button class="btn btn-outline-primary mt-2">Guardar mercados</button></form>
+}
+<p class="text-muted">Los cambios de estado, datos y asignaciones cierran las sesiones anteriores de esta cuenta.</p>
+<a asp-action="Index">Volver a usuarios</a>

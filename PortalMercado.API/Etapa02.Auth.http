@@ -1,0 +1,25 @@
+@baseUrl = https://localhost:7161
+
+### 1. Preparar CSRF y conservar Set-Cookie en el cliente.
+GET {{baseUrl}}/api/auth/csrf
+
+### 2. Copiar requestToken anterior. Introducir contraseña localmente; NO guardar el archivo con ella.
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+X-CSRF-TOKEN: REEMPLAZAR_LOCALMENTE
+
+{
+  "correo": "vendedor.et02@example.invalid",
+  "password": "INTRODUCIR_SOLO_LOCALMENTE"
+}
+
+### 3. Perfil, con cookie de autenticación del paso anterior.
+GET {{baseUrl}}/api/auth/me
+
+### 4. Obtener token CSRF nuevo tras cambiar de identidad.
+GET {{baseUrl}}/api/auth/csrf
+
+### 5. Cerrar sesión con cookie y nuevo CSRF.
+POST {{baseUrl}}/api/auth/logout
+X-CSRF-TOKEN: REEMPLAZAR_LOCALMENTE

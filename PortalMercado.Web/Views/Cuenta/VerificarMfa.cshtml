@@ -1,0 +1,17 @@
+@model PortalMercado.Application.Security.MfaCodeRequest
+@{ ViewData["Title"] = "Verificar acceso"; }
+<div class="row justify-content-center"><div class="col-md-6 col-lg-5">
+    <h1 class="h3">Verifica tu acceso</h1>
+    <p>Ingresa el código de tu aplicación de autenticación o uno de tus códigos de recuperación.</p>
+    <form asp-action="ConfirmarMfa" method="post">
+        <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+        <label asp-for="Code" class="form-label">Código</label>
+        <input name="Code" id="Code" class="form-control mb-3" autocomplete="one-time-code" maxlength="64" required />
+        <div class="form-check mb-3">
+            <input asp-for="RegenerateRecoveryCodes" class="form-check-input" />
+            <label asp-for="RegenerateRecoveryCodes" class="form-check-label">Generar nuevos códigos de recuperación e invalidar los anteriores</label>
+        </div>
+        <button class="btn btn-primary" type="submit">Verificar</button>
+    </form>
+    <a class="d-block mt-3" asp-action="Login">Volver al inicio de sesión</a>
+</div></div>

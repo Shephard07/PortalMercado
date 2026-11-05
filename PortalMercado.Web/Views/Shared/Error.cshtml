@@ -1,0 +1,13 @@
+@model PortalMercado.Web.Models.ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+<div class="container py-5">
+    <h1>No se pudo completar la solicitud</h1>
+    <p>Inténtalo nuevamente. Si el problema continúa, informa el identificador de seguimiento.</p>
+    @if (Model.ShowRequestId)
+    {
+        <p>Identificador: <code>@Model.RequestId</code></p>
+    }
+    <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Volver al inicio</a>
+</div>

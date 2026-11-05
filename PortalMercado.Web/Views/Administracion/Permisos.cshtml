@@ -1,0 +1,13 @@
+@using PortalMercado.Application.Administration
+@model AdminCatalog
+@{ ViewData["Title"] = "Roles y permisos"; var access = (AccessSnapshot)ViewBag.Access; }
+<h1>Roles y permisos</h1>
+<p>Los permisos se aplican junto con el ámbito de cada usuario. Los roles propios están protegidos contra cambios desde la misma cuenta.</p>
+@if (!access.General) { <p>La modificación del catálogo global requiere un administrador general.</p> }
+@foreach (var role in Model.Roles) {
+<details class="border rounded p-3 mb-3"><summary>@role.Codigo — @role.Nombre</summary>
+<form asp-action="Permisos" asp-route-id="@role.IdRol" method="post" class="mt-3">
+@foreach (var permission in Model.Permisos) { <label class="d-block"><input type="checkbox" name="Ids" value="@permission.IdPermiso" checked="@role.Permisos.Contains(permission.IdPermiso)" disabled="@(!access.General || access.Roles.Contains(role.Codigo))" /> @permission.Codigo</label> }
+@if (access.General && !access.Roles.Contains(role.Codigo)) { <button class="btn btn-primary mt-3">Guardar permisos</button> }
+</form></details>
+}

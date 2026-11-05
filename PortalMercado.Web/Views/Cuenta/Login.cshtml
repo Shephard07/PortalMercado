@@ -1,0 +1,41 @@
+@model PortalMercado.Application.Security.LoginRequest
+@{ ViewData["Title"] = "Iniciar sesión"; }
+
+<div class="pm-auth">
+    <div class="pm-auth-brand">
+        <span class="pm-eyebrow">Plataforma multinegocio</span>
+        <p class="pm-auth-title">PortalMercado</p>
+        <p class="pm-auth-caption">Gestiona el acceso a tus mercados y negocios desde un solo lugar.</p>
+        <svg class="pm-market-art" viewBox="0 0 420 208" fill="none" aria-hidden="true">
+            <path d="M24 183h372M60 183v-69h62v69m173 0v-69h62v69M66 114l12-20h28l12 20m183 0 12-20h28l12 20"
+                  stroke="#8EC9BA" stroke-opacity=".5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M135 92h150v91H135z" fill="#1B5A51" stroke="#A8D7CA" stroke-width="2"/>
+            <path d="m125 94 20-43h130l20 43" fill="#E8B96B"/>
+            <path d="m158 94 12-43h22l-5 43m46 0-5-43h22l12 43" fill="#F6D99D"/>
+            <path d="M125 94h170v10c0 12-22 14-28 1-5 13-23 13-29 0-5 13-23 13-28 0-6 13-24 13-29 0-6 13-24 13-29 0-6 13-27 11-27-1V94Z" fill="#D69E4A"/>
+            <path d="M155 183v-54h34v54m14-54h62v33h-62zm0 44h62" stroke="#BFE7D8" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M216 162v-12h12v12m12 0v-16h12v16" fill="#86BEAC"/>
+            <path d="M70 57h40m-20-20v40m237-23h33m-16-16v33" stroke="#8EC9BA" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="119" cy="30" r="4" fill="#E8B96B"/><circle cx="310" cy="83" r="3" fill="#E8B96B"/>
+        </svg>
+    </div>
+
+    <section class="pm-auth-form" aria-labelledby="titulo-acceso">
+        <span class="pm-eyebrow">Tu cuenta</span>
+        <h1 id="titulo-acceso">Iniciar sesión</h1>
+        <p class="pm-description">Ingresa con la cuenta asignada por tu administrador.</p>
+        <form asp-controller="Cuenta" asp-action="Login" method="post">
+            <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+            <div class="mb-3">
+                <label asp-for="Correo" class="form-label">Correo electrónico</label>
+                <input asp-for="Correo" class="form-control" type="email" autocomplete="username" maxlength="254" required />
+            </div>
+            <div class="mb-4">
+                <label asp-for="Password" class="form-label">Contraseña</label>
+                <input name="Password" id="Password" class="form-control" type="password" autocomplete="current-password" maxlength="128" required />
+            </div>
+            <button class="btn btn-primary w-100" type="submit">Iniciar sesión</button>
+        </form>
+        <a class="pm-recovery-link" asp-controller="Password" asp-action="Recuperar">Olvidé mi contraseña</a>
+    </section>
+</div>

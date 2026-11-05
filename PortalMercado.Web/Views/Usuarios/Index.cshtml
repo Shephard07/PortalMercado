@@ -1,0 +1,78 @@
+@using PortalMercado.Application.Administration
+@model Page<UserDto>
+@{
+    ViewData["Title"] = "Usuarios";
+    var access = (AccessSnapshot)ViewBag.Access;
+}
+<header class="pm-page-heading pm-page-heading-actions">
+    <div>
+        <span class="pm-eyebrow">Administración</span>
+        <h1>Usuarios</h1>
+        <p class="pm-description">Consulta las cuentas que puedes gestionar según tu ámbito de acceso.</p>
+    </div>
+    @if (access.Has(Permissions.Create))
+    {
+        <a class="btn btn-primary" asp-action="Crear">
+            <span aria-hidden="true">＋</span> Nuevo usuario
+        </a>
+    }
+</header>
+<section class="pm-panel" aria-label="Listado de usuarios">
+    <div class="table-responsive" tabindex="0" role="region" aria-label="Tabla de cuentas">
+        <table class="table pm-user-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">Cuenta</th>
+                    <th scope="col">Roles</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col" class="text-end">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Items.Length == 0)
+                {
+                    <tr><td colspan="4" class="pm-table-empty">No hay cuentas en esta página.</td></tr>
+                }
+                @foreach (var item in Model.Items)
+                {
+                    var status = item.PendienteMfa ? "Enrolamiento MFA pendiente" : item.Activo ? "Activo" : "Inactivo";
+                    var statusClass = item.PendienteMfa ? "pm-status-pending" : item.Activo ? "pm-status-active" : "pm-status-inactive";
+                    <tr>
+                        <th scope="row" class="pm-account-cell">
+                            <span class="d-block fw-semibold">@item.Nombre</span>
+                            <span class="d-block pm-description small">@item.Correo</span>
+                        </th>
+                        <td>
+                            @if (item.Roles.Length == 0)
+                            {
+                                <span class="pm-description small">Sin rol</span>
+                            }
+                            @foreach (var role in item.Roles)
+                            {
+                                <span class="pm-role">@role</span>
+                            }
+                        </td>
+                        <td><span class="pm-status @statusClass">@status</span></td>
+                        <td class="text-end"><a class="btn btn-outline-secondary btn-sm text-nowrap" asp-action="Editar" asp-route-id="@item.IdUsuario">Ver cuenta</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="pm-panel-footer">
+        <span>@Model.Total @(Model.Total == 1 ? "cuenta" : "cuentas") · Página @Model.Pagina</span>
+        @if (Model.Pagina > 1 || (long)Model.Pagina * Model.Tamano < Model.Total)
+        {
+            <nav class="d-flex gap-2" aria-label="Páginas de usuarios">
+                @if (Model.Pagina > 1)
+                {
+                    <a class="btn btn-outline-secondary btn-sm" asp-route-pagina="@(Model.Pagina - 1)">Anterior</a>
+                }
+                @if ((long)Model.Pagina * Model.Tamano < Model.Total)
+                {
+                    <a class="btn btn-outline-secondary btn-sm" asp-route-pagina="@(Model.Pagina + 1)">Siguiente</a>
+                }
+            </nav>
+        }
+    </div>
+</section>

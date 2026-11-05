@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\PortalMercado.Application\PortalMercado.Application.csproj" />
+    <ProjectReference Include="..\PortalMercado.Infrastructure\PortalMercado.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>67e8c3ef-34ee-4fab-9e7b-2a8ad6aa4e95</UserSecretsId>
+  </PropertyGroup>
+
+</Project>

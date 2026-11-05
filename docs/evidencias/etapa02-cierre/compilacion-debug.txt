@@ -1,0 +1,12 @@
+  PortalMercado.Domain -> /workspace/scratch/aa88ffa99ee7/et02-work/PortalMercado/PortalMercado.Domain/bin/Debug/net10.0/PortalMercado.Domain.dll
+  PortalMercado.Application -> /workspace/scratch/aa88ffa99ee7/et02-work/PortalMercado/PortalMercado.Application/bin/Debug/net10.0/PortalMercado.Application.dll
+  PortalMercado.Infrastructure -> /workspace/scratch/aa88ffa99ee7/et02-work/PortalMercado/PortalMercado.Infrastructure/bin/Debug/net10.0/PortalMercado.Infrastructure.dll
+  PortalMercado.Web -> /workspace/scratch/aa88ffa99ee7/et02-work/PortalMercado/PortalMercado.Web/bin/Debug/net10.0/PortalMercado.Web.dll
+  PortalMercado.API -> /workspace/scratch/aa88ffa99ee7/et02-work/PortalMercado/PortalMercado.API/bin/Debug/net10.0/PortalMercado.API.dll
+  PortalMercado.Tests -> /workspace/scratch/aa88ffa99ee7/et02-work/PortalMercado/PortalMercado.Tests/bin/Debug/net10.0/PortalMercado.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:16.30

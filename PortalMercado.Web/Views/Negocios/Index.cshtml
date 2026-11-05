@@ -1,0 +1,43 @@
+@model PortalMercado.Application.Administration.BusinessContext
+@{
+    ViewData["Title"] = "Mis negocios";
+    var current = Model.Disponibles.FirstOrDefault(x => x.Id == Model.IdNegocioActivo);
+}
+<header class="pm-page-heading">
+    <span class="pm-eyebrow">Espacio de trabajo</span>
+    <h1>Mis negocios</h1>
+    <p class="pm-description">Selecciona el negocio con el que deseas trabajar durante esta sesión.</p>
+</header>
+@if (Model.Disponibles.Length == 0)
+{
+    <div class="pm-panel pm-empty">
+        <h2 class="h5">Aún no tienes negocios autorizados</h2>
+        <p class="pm-description mb-0">Solicita la asignación a un administrador.</p>
+    </div>
+}
+else
+{
+    <div class="pm-business">
+        <section class="pm-business-current" aria-labelledby="contexto-actual">
+            <span class="pm-eyebrow" id="contexto-actual">Contexto actual</span>
+            <h2>@(current?.Nombre ?? "Sin seleccionar")</h2>
+            <span class="pm-status @(current is null ? "pm-status-inactive" : "pm-status-active")">
+                @(current is null ? "Sin negocio activo" : "Negocio en uso")
+            </span>
+        </section>
+        <section class="pm-panel pm-business-form" aria-labelledby="seleccionar-negocio">
+            <h2 class="h5" id="seleccionar-negocio">Seleccionar negocio</h2>
+            <p class="pm-description">Puedes elegir entre tus negocios autorizados.</p>
+            <form asp-action="Seleccionar" method="post">
+                <label for="IdNegocio" class="form-label">Negocio</label>
+                <select id="IdNegocio" name="IdNegocio" class="form-select mb-3">
+                    @foreach (var business in Model.Disponibles)
+                    {
+                        <option value="@business.Id" selected="@(Model.IdNegocioActivo == business.Id)">@business.Nombre</option>
+                    }
+                </select>
+                <button type="submit" class="btn btn-primary">Usar este negocio</button>
+            </form>
+        </section>
+    </div>
+}

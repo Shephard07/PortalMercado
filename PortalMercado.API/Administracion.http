@@ -1,0 +1,51 @@
+@baseUrl = https://localhost:7161
+# Usar una sesión API obtenida mediante login/MFA. El cliente debe conservar cookies.
+# Obtener /api/auth/csrf DESPUÉS del login y copiar requestToken a la variable local.
+# No guardar contraseñas, cookies o tokens en este archivo versionado.
+@csrf = TOKEN_TEMPORAL_NO_VERSIONAR
+@idUsuario = 2
+@idRol = 1
+@idNegocio = 1
+
+### Listado paginado
+GET {{baseUrl}}/api/usuarios?pagina=1&tamano=20
+
+### Catálogos filtrados para asignaciones
+GET {{baseUrl}}/api/administracion/catalogos
+
+### Roles y permisos
+GET {{baseUrl}}/api/roles
+
+### Permisos
+GET {{baseUrl}}/api/permisos
+
+### Editar datos, requiere autorización y ámbito
+PUT {{baseUrl}}/api/usuarios/{{idUsuario}}
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrf}}
+
+{"nombre":"Vendedor ficticio ET02","telefono":null}
+
+### Asignar negocios por ID autorizado
+PUT {{baseUrl}}/api/usuarios/{{idUsuario}}/negocios
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrf}}
+
+{"ids":[{{idNegocio}}]}
+
+### Consultar contexto de esta sesión
+GET {{baseUrl}}/api/negocios/contexto
+
+### Seleccionar contexto autorizado
+PUT {{baseUrl}}/api/negocios/contexto
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrf}}
+
+{"idNegocio":{{idNegocio}}}
+
+### Desactivar cuenta (no ejecutar sobre el administrador propio)
+PATCH {{baseUrl}}/api/usuarios/{{idUsuario}}/estado
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrf}}
+
+{"activo":false}

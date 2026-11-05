@@ -1,0 +1,10 @@
+@model PortalMercado.Application.Security.ResetPasswordRequest
+@{ ViewData["Title"] = "Restablecer contraseña"; }
+<div class="col-md-7 col-lg-5 mx-auto py-4"><h1 class="h3">Restablecer contraseña</h1>
+<p>Usa entre 12 y 128 caracteres, con mayúscula, minúscula, número y símbolo.</p>
+<form method="post" asp-controller="Password" asp-action="Restablecer">
+<div asp-validation-summary="All" class="text-danger" role="alert"></div><input type="hidden" asp-for="Token" />
+<label for="NewPassword" class="form-label">Nueva contraseña</label><input type="password" id="NewPassword" name="NewPassword" autocomplete="new-password" required minlength="12" maxlength="128" class="form-control mb-3" />
+<label for="ConfirmPassword" class="form-label">Repetir nueva contraseña</label><input type="password" id="ConfirmPassword" name="ConfirmPassword" autocomplete="new-password" required minlength="12" maxlength="128" class="form-control mb-3" />
+<button class="btn btn-primary">Guardar nueva contraseña</button></form>
+<a class="d-block mt-3" asp-controller="Password" asp-action="Recuperar">Solicitar otro enlace</a></div>

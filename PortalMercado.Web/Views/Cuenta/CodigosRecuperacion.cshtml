@@ -1,0 +1,9 @@
+@model string[]
+@{ ViewData["Title"] = "Códigos de recuperación"; }
+<h1 class="h3">Tu cuenta ya está protegida</h1>
+<p>Guarda estos códigos en un lugar privado. Podrás usar cada uno una sola vez, junto con tu contraseña, si pierdes el acceso a tu aplicación de autenticación.</p>
+<div class="alert alert-warning">Se muestran únicamente ahora. No los incluyas en capturas, videos ni documentos del proyecto.</div>
+<ul class="font-monospace">
+@foreach (var code in Model) { <li class="user-select-all">@code</li> }
+</ul>
+<a asp-action="Perfil" class="btn btn-primary">Ya guardé mis códigos</a>

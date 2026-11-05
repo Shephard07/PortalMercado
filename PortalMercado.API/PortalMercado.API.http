@@ -1,0 +1,29 @@
+@api = https://localhost:7161
+
+### Estado del proceso — esperado: 200
+GET {{api}}/api/health
+Accept: application/json
+
+### Conexión SQL — esperado: 200 si está disponible
+GET {{api}}/api/health/database
+Accept: application/json
+
+### Consulta EF de Mercado — esperado: 200
+GET {{api}}/api/health/database/mapping
+Accept: application/json
+
+### CORS: origen autorizado
+### Esperado: Access-Control-Allow-Origin: https://localhost:7275
+OPTIONS {{api}}/api/health
+Origin: https://localhost:7275
+Access-Control-Request-Method: GET
+
+### CORS: origen no autorizado
+### Esperado: ausencia de Access-Control-Allow-Origin
+OPTIONS {{api}}/api/health
+Origin: https://example.invalid
+Access-Control-Request-Method: GET
+
+### Documento OpenAPI — disponible únicamente en Development
+GET {{api}}/openapi/v1.json
+Accept: application/json

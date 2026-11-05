@@ -1,0 +1,38 @@
+@model PortalMercado.Application.Security.AuthProfile
+@{ ViewData["Title"] = "Mi perfil"; }
+
+<header class="pm-page-heading">
+    <span class="pm-eyebrow">Tu cuenta</span>
+    <h1>Mi perfil</h1>
+    <p class="pm-description">Consulta tus datos de acceso y las asignaciones de tu cuenta.</p>
+</header>
+<section class="pm-panel pm-profile" aria-labelledby="datos-perfil">
+    <div class="pm-profile-title">
+        <span class="pm-profile-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+                <circle cx="12" cy="8" r="3.5"/><path d="M5 20v-1a7 7 0 0 1 14 0v1"/>
+            </svg>
+        </span>
+        <div>
+            <h2 class="h5 mb-1" id="datos-perfil">@Model.Nombre</h2>
+            <p class="pm-description mb-0">@Model.Correo</p>
+        </div>
+    </div>
+    <dl class="pm-profile-details">
+        <dt>Roles</dt>
+        <dd>
+            @if (Model.Roles.Length == 0) { <span class="pm-description">Sin rol</span> }
+            @foreach (var role in Model.Roles) { <span class="pm-role">@role</span> }
+        </dd>
+        <dt>Negocios autorizados</dt>
+        <dd>@(Model.Negocios.Length > 0 ? string.Join(", ", Model.Negocios) : "Sin asignaciones")</dd>
+        <dt>Mercados asignados</dt>
+        <dd>@(Model.Mercados.Length > 0 ? string.Join(", ", Model.Mercados) : "Sin asignaciones")</dd>
+    </dl>
+    <div class="pm-profile-actions">
+        <a class="btn btn-primary" asp-controller="Password" asp-action="CambiarPassword">Cambiar contraseña</a>
+        <form asp-controller="Cuenta" asp-action="Logout" method="post">
+            <button type="submit" class="btn btn-outline-secondary">Cerrar sesión</button>
+        </form>
+    </div>
+</section>

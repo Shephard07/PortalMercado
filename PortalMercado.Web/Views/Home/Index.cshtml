@@ -1,0 +1,32 @@
+@model PortalMercado.Web.Models.TechnicalHomeViewModel
+@{ ViewData["Title"] = "Inicio"; }
+
+<section class="pm-hero" aria-labelledby="titulo-inicio">
+    <span class="pm-eyebrow">Portal de administración</span>
+    <h1 id="titulo-inicio">@Model.ApplicationName</h1>
+    <p>Plataforma comercial multinegocio para mercados de abastos.</p>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <a class="btn pm-hero-button" asp-controller="Cuenta" asp-action="Perfil">Ver mi perfil</a>
+    }
+    else
+    {
+        <a class="btn pm-hero-button" asp-controller="Cuenta" asp-action="Login">Iniciar sesión</a>
+    }
+</section>
+
+<section class="pm-home-status" aria-label="Estado técnico">
+    <div class="pm-panel pm-metric">
+        <h2>Aplicación web</h2>
+        <span class="pm-status pm-status-active">En ejecución</span>
+    </div>
+    <div class="pm-panel pm-metric">
+        <h2>Versión</h2>
+        <p>@Model.Version</p>
+    </div>
+    <div class="pm-panel pm-metric">
+        <h2>Ambiente</h2>
+        <p>@Model.EnvironmentName</p>
+    </div>
+</section>
+<p class="pm-description small mb-0">El diagnóstico de la API verifica la conexión a SQL Server.</p>

@@ -1,0 +1,4 @@
+@{ ViewData["Title"] = "Solicitud recibida"; }
+<h1>Solicitud recibida</h1><p>@PortalMercado.Application.Security.PasswordMessages.Requested</p>
+@if (ViewBag.Pickup == true) { <p class="alert alert-info">Modo de pruebas: el correo se guarda localmente; no se envía por Internet.</p> }
+<a asp-controller="Cuenta" asp-action="Login">Volver al inicio de sesión</a>

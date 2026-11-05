@@ -1,0 +1,21 @@
+@using PortalMercado.Application.Administration
+@model CreateUserRequest
+@{ ViewData["Title"] = "Nuevo usuario"; var catalog = (AdminCatalog)ViewBag.Catalog; }
+<h1>Nuevo usuario</h1>
+<p>Las cuentas administrativas completan MFA antes de activarse. La contraseña debe comunicarse por un canal privado.</p>
+<form asp-action="Crear" method="post" class="col-lg-7">
+<div asp-validation-summary="All" class="text-danger"></div>
+<label asp-for="Correo" class="form-label"></label><input asp-for="Correo" class="form-control mb-3" autocomplete="off" />
+<label asp-for="Nombre" class="form-label"></label><input asp-for="Nombre" class="form-control mb-3" />
+<label asp-for="Telefono" class="form-label">Teléfono</label><input asp-for="Telefono" class="form-control mb-3" />
+<label asp-for="Password" class="form-label">Contraseña inicial</label><input name="Password" id="Password" type="password" class="form-control mb-3" autocomplete="new-password" maxlength="128" />
+<p>De 12 a 128 caracteres: mayúscula, minúscula, número y símbolo.</p>
+<label asp-for="Rol" class="form-label"></label><select asp-for="Rol" class="form-select mb-3">@foreach (var r in catalog.Roles) { <option value="@r.Codigo">@r.Codigo</option> }</select>
+<fieldset class="mb-3"><legend class="fs-5">Negocios</legend>
+@foreach (var n in catalog.Negocios) { <label class="d-block"><input type="checkbox" name="Negocios" value="@n.Id" checked="@Model.Negocios.Contains(n.Id)" /> @n.Nombre</label> }
+</fieldset>
+<fieldset class="mb-3"><legend class="fs-5">Mercados</legend>
+@foreach (var m in catalog.Mercados) { <label class="d-block"><input type="checkbox" name="Mercados" value="@m.Id" checked="@Model.Mercados.Contains(m.Id)" /> @m.Nombre</label> }
+</fieldset>
+<button class="btn btn-primary">Crear usuario</button> <a asp-action="Index">Volver</a>
+</form>

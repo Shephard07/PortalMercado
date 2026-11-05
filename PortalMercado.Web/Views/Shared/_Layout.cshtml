@@ -1,0 +1,96 @@
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var signedIn = User.Identity?.IsAuthenticated == true;
+    var accountPage = currentController is "Cuenta" or "Password";
+    var homePage = currentController == "Home" && currentAction == "Index";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · PortalMercado</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <a class="pm-skip visually-hidden-focusable" href="#contenido">Saltar al contenido</a>
+    <header class="pm-header">
+        <nav class="navbar navbar-expand-lg pm-container" aria-label="Navegación principal">
+            <a class="navbar-brand pm-brand" asp-controller="Home" asp-action="Index">
+                <span class="pm-brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 10v10h16V10M3 10l2-6h14l2 6M3 10a3 3 0 0 0 4.5 2.6A3 3 0 0 0 12 10a3 3 0 0 0 4.5 2.6A3 3 0 0 0 21 10M9 20v-5h6v5M8 4l-1 6m9-6 1 6" />
+                    </svg>
+                </span>
+                PortalMercado
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#portalNav"
+                    aria-controls="portalNav" aria-expanded="false" aria-label="Abrir o cerrar el menú">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse" id="portalNav">
+                <ul class="navbar-nav ms-lg-auto pm-nav">
+                    <li class="nav-item">
+                        <a class="nav-link @(homePage ? "active" : null)" aria-current="@(homePage ? "page" : null)"
+                           asp-controller="Home" asp-action="Index">Inicio</a>
+                    </li>
+                    @if (signedIn)
+                    {
+                        @if (User.HasClaim("pm_permission", "NEGOCIO_CONTEXTO"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(currentController == "Negocios" ? "active" : null)"
+                                   aria-current="@(currentController == "Negocios" ? "page" : null)"
+                                   asp-controller="Negocios" asp-action="Index">Mis negocios</a>
+                            </li>
+                        }
+                        @if (User.HasClaim("pm_permission", "USUARIO_VER"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(currentController == "Usuarios" ? "active" : null)"
+                                   aria-current="@(currentController == "Usuarios" ? "page" : null)"
+                                   asp-controller="Usuarios" asp-action="Index">Usuarios</a>
+                            </li>
+                        }
+                        @if (User.HasClaim("pm_permission", "PERMISO_GESTIONAR"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(currentController == "Administracion" ? "active" : null)"
+                                   aria-current="@(currentController == "Administracion" ? "page" : null)"
+                                   asp-controller="Administracion" asp-action="Permisos">Roles y permisos</a>
+                            </li>
+                        }
+                        <li class="nav-item">
+                            <a class="nav-link @(accountPage ? "active" : null)" aria-current="@(accountPage ? "page" : null)"
+                               asp-controller="Cuenta" asp-action="Perfil">Mi perfil</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(accountPage ? "active" : null)" aria-current="@(accountPage ? "page" : null)"
+                               asp-controller="Cuenta" asp-action="Login">Iniciar sesión</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <main id="contenido" class="pm-container pm-main" tabindex="-1">
+        @RenderBody()
+    </main>
+    <footer class="pm-footer">
+        <div class="pm-container pm-footer-inner">
+            <span>© 2026 PortalMercado</span>
+            <a asp-controller="Home" asp-action="Privacy">Privacidad</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
