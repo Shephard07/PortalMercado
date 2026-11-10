@@ -1,0 +1,132 @@
+@using PortalMercado.Application.Catalogo
+@model ProductosConsulta
+@{
+    ViewData["Title"] = "Productos";
+    var filtro = (ProductoFiltro)ViewBag.Filtro;
+    var pagina = Model.Productos;
+    var puedeGestionar = User.HasClaim("pm_permission", ProductoServicio.PermisoGestionar);
+    var nombreNegocio = Model.Negocios.FirstOrDefault(n => n.Id == Model.IdNegocio)?.Nombre;
+}
+<header class="pm-page-heading">
+    <span class="pm-eyebrow">Catálogo</span>
+    <h1>Productos</h1>
+    <p class="pm-description">Consulta precios, unidades y disponibilidad por negocio.</p>
+</header>
+@if (Model.Negocios.Length == 0)
+{
+    <div class="pm-panel pm-empty">Aún no tienes negocios autorizados.</div>
+}
+else
+{
+    <form method="get" asp-action="Index" class="row g-3 align-items-end mb-3" aria-label="Filtros de productos">
+        <div class="col-md-4">
+            <label for="idNegocio" class="form-label">Negocio</label>
+            <select id="idNegocio" name="idNegocio" class="form-select" required>
+                @if (Model.IdNegocio is null)
+                {
+                    <option value="">Selecciona un negocio</option>
+                }
+                @foreach (var negocio in Model.Negocios)
+                {
+                    <option value="@negocio.Id" selected="@(negocio.Id == Model.IdNegocio)">@negocio.Nombre</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="buscar" class="form-label">Nombre o SKU</label>
+            <input id="buscar" name="buscar" value="@filtro.Buscar" maxlength="200" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <label for="idCategoria" class="form-label">ID de categoría</label>
+            <input id="idCategoria" name="idCategoria" value="@filtro.IdCategoria" type="number" min="1" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <label for="estado" class="form-label">Estado</label>
+            <select id="estado" name="estado" class="form-select">
+                <option value="">Todos</option>
+                @foreach (var estado in ProductoServicio.Estados)
+                {
+                    <option value="@estado" selected="@(string.Equals(filtro.Estado?.Trim(), estado, StringComparison.OrdinalIgnoreCase))">@estado</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-auto"><button type="submit" class="btn btn-outline-secondary">Filtrar</button></div>
+    </form>
+    @if (Model.IdNegocio is null)
+    {
+        <div class="pm-panel pm-empty">Selecciona un negocio para ver sus productos.</div>
+    }
+    else
+    {
+        @if (puedeGestionar)
+        {
+            <div class="mb-3">
+                <a asp-action="Crear" asp-route-idNegocio="@Model.IdNegocio" class="btn btn-primary">Nuevo producto</a>
+            </div>
+        }
+        <section class="pm-panel" aria-label="Listado de productos">
+            <div class="table-responsive">
+                <table class="table pm-user-table align-middle mb-0">
+                    <caption class="caption-top px-3">@nombreNegocio</caption>
+                    <thead><tr>
+                        <th scope="col">Producto</th><th scope="col">SKU</th><th scope="col">Categoría</th>
+                        <th scope="col">Precio</th><th scope="col">Unidad</th><th scope="col">Estado</th>
+                        <th scope="col">Disponible</th>
+                        @if (puedeGestionar)
+                        {
+                            <th scope="col">Acciones</th>
+                        }
+                    </tr></thead>
+                    <tbody>
+                        @if (pagina.Items.Length == 0)
+                        {
+                            <tr><td colspan="@(puedeGestionar ? 8 : 7)" class="pm-table-empty">No se encontraron productos para este negocio y filtros.</td></tr>
+                        }
+                        @foreach (var item in pagina.Items)
+                        {
+                            <tr>
+                                <th scope="row">
+                                    @if (Uri.TryCreate(item.ImagenPrincipal, UriKind.Absolute, out var imagen) && imagen.Scheme == Uri.UriSchemeHttps &&
+                                         imagen.IsWellFormedOriginalString() && imagen.UserInfo.Length == 0)
+                                    {
+                                        <img src="@imagen.AbsoluteUri" width="40" height="40" class="rounded object-fit-cover me-2"
+                                             loading="lazy" referrerpolicy="no-referrer" alt="" />
+                                    }
+                                    <a asp-action="Detalle" asp-route-idNegocio="@Model.IdNegocio" asp-route-id="@item.Id">@item.Nombre</a>
+                                </th>
+                                <td>@(item.Sku ?? "—")</td>
+                                <td>@item.Categoria <small>(@item.IdCategoria)</small></td>
+                                <td>@item.Precio.ToString("N2")</td>
+                                <td>@item.Unidad</td>
+                                <td>@item.Estado</td>
+                                <td>@(item.Disponible?.ToString("0.###") ?? (item.ControlaStock ? "Sin registro" : "No aplica"))</td>
+                                @if (puedeGestionar)
+                                {
+                                    <td><a asp-action="Editar" asp-route-idNegocio="@Model.IdNegocio" asp-route-id="@item.Id"
+                                           class="btn btn-outline-secondary btn-sm">Editar</a></td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="pm-panel-footer">
+                <span>@pagina.Total @(pagina.Total == 1 ? "producto" : "productos") · Página @pagina.Pagina</span>
+                <nav class="d-flex gap-2" aria-label="Páginas de productos">
+                    @if (pagina.Pagina > 1)
+                    {
+                        <a class="btn btn-outline-secondary btn-sm" asp-action="Index" asp-route-idNegocio="@Model.IdNegocio"
+                           asp-route-idCategoria="@filtro.IdCategoria" asp-route-estado="@filtro.Estado" asp-route-buscar="@filtro.Buscar"
+                           asp-route-pagina="@(pagina.Pagina - 1)">Anterior</a>
+                    }
+                    @if (pagina.Pagina < 100000 && (long)pagina.Pagina * pagina.Tamano < pagina.Total)
+                    {
+                        <a class="btn btn-outline-secondary btn-sm" asp-action="Index" asp-route-idNegocio="@Model.IdNegocio"
+                           asp-route-idCategoria="@filtro.IdCategoria" asp-route-estado="@filtro.Estado" asp-route-buscar="@filtro.Buscar"
+                           asp-route-pagina="@(pagina.Pagina + 1)">Siguiente</a>
+                    }
+                </nav>
+            </div>
+        </section>
+    }
+}

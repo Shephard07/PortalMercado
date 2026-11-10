@@ -1,0 +1,104 @@
+@using PortalMercado.Application.Catalogo
+@model PortalMercado.Application.Catalogo.ProductoDetalle
+@{
+    ViewData["Title"] = Model.Nombre;
+    var destinos = ProductoServicio.DestinosDeEstado(Model.Estado);
+}
+<header class="pm-page-heading">
+    <span class="pm-eyebrow">Productos</span>
+    <h1>@Model.Nombre</h1>
+    <p class="pm-description">@Model.Categoria · @Model.Unidad · @Model.Estado</p>
+    <a asp-action="Index" asp-route-idNegocio="@Model.IdNegocio" class="btn btn-outline-secondary">Volver a productos</a>
+    <a asp-action="Imagenes" asp-route-idNegocio="@Model.IdNegocio" asp-route-id="@Model.Id" class="btn btn-primary">Imágenes</a>
+</header>
+<section class="pm-panel p-4 mb-3" aria-labelledby="datos-producto">
+    <h2 id="datos-producto" class="h5">Datos del producto</h2>
+    <dl class="row mb-0">
+        <dt class="col-sm-4">SKU</dt><dd class="col-sm-8">@(Model.Sku ?? "Sin SKU")</dd>
+        <dt class="col-sm-4">Precio actual</dt><dd class="col-sm-8">@Model.Precio.ToString("N2")</dd>
+    </dl>
+</section>
+@if (User.HasClaim("pm_permission", ProductoServicio.PermisoGestionar) && destinos.Count > 0)
+{
+    <section class="pm-panel p-4 mb-3" aria-labelledby="publicacion-producto">
+        <h2 id="publicacion-producto" class="h5">Estado del producto</h2>
+        @if (TempData["ErrorEstadoProducto"] is string error)
+        {
+            <div class="alert alert-danger" role="alert">@error</div>
+        }
+        <p class="pm-description">Para publicar se requiere una imagen principal y, si el producto controla stock, disponibilidad positiva.</p>
+        <form asp-action="CambiarEstado" asp-route-id="@Model.Id" asp-route-idNegocio="@Model.IdNegocio"
+              method="post" class="row g-3 align-items-end">
+            <input type="hidden" name="EstadoActual" value="@Model.Estado" />
+            <div class="col-md-5">
+                <label for="nuevo-estado" class="form-label">Nuevo estado</label>
+                <select id="nuevo-estado" name="NuevoEstado" class="form-select" required>
+                    <option value="">Selecciona un estado</option>
+                    @foreach (var destino in destinos)
+                    {
+                        <option value="@destino">@destino</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-auto">
+                <button type="submit" class="btn btn-primary">Cambiar estado</button>
+            </div>
+        </form>
+    </section>
+}
+<section class="pm-panel p-4 mb-3" aria-labelledby="inventario">
+    <h2 id="inventario" class="h5">Inventario</h2>
+    @if (!Model.ControlaStock)
+    {
+        <p class="mb-0">Este producto no controla stock.</p>
+    }
+    else if (Model.Inventario is { } inventario)
+    {
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Existencia</dt><dd class="col-sm-8">@inventario.Existencia.ToString("0.###") @Model.Unidad</dd>
+            <dt class="col-sm-4">Reservado</dt><dd class="col-sm-8">@inventario.Reservado.ToString("0.###") @Model.Unidad</dd>
+            <dt class="col-sm-4">Disponible</dt><dd class="col-sm-8">@inventario.Disponible.ToString("0.###") @Model.Unidad</dd>
+        </dl>
+    }
+    else
+    {
+        <p class="mb-0">Todavía no hay un registro de inventario para este producto.</p>
+    }
+</section>
+<section class="pm-panel" aria-labelledby="historial">
+    <h2 id="historial" class="h5 px-3 pt-3">Historial de precios</h2>
+    <div class="table-responsive">
+        <table class="table pm-user-table align-middle mb-0">
+            <thead><tr><th scope="col">Precio</th><th scope="col">Desde (UTC)</th><th scope="col">Hasta (UTC)</th></tr></thead>
+            <tbody>
+                @if (Model.Precios.Length == 0)
+                {
+                    <tr><td colspan="3" class="pm-table-empty">No hay vigencias registradas en esta página.</td></tr>
+                }
+                @foreach (var precio in Model.Precios)
+                {
+                    <tr>
+                        <td>@precio.Precio.ToString("N2")</td>
+                        <td>@precio.DesdeUtc.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                        <td>@(precio.HastaUtc?.ToString("dd/MM/yyyy HH:mm:ss") ?? "Sin fecha de fin")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="pm-panel-footer">
+        <span>Página @Model.PaginaPrecios</span>
+        <nav class="d-flex gap-2" aria-label="Páginas del historial de precios">
+            @if (Model.PaginaPrecios > 1)
+            {
+                <a class="btn btn-outline-secondary btn-sm" asp-action="Detalle" asp-route-id="@Model.Id"
+                   asp-route-idNegocio="@Model.IdNegocio" asp-route-pagina="@(Model.PaginaPrecios - 1)">Anterior</a>
+            }
+            @if (Model.HayMasPrecios && Model.PaginaPrecios < 100000)
+            {
+                <a class="btn btn-outline-secondary btn-sm" asp-action="Detalle" asp-route-id="@Model.Id"
+                   asp-route-idNegocio="@Model.IdNegocio" asp-route-pagina="@(Model.PaginaPrecios + 1)">Siguiente</a>
+            }
+        </nav>
+    </div>
+</section>

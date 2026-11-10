@@ -2,6 +2,8 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PortalMercado.Application.Catalogo;
+using PortalMercado.Infrastructure.Catalogo;
 using PortalMercado.Infrastructure.Persistence;
 using PortalMercado.Application.Interfaces;
 using PortalMercado.Infrastructure.Services;
@@ -42,6 +44,13 @@ public static class DependencyInjection
 
         services.AddScoped<IDatabaseHealthService, DatabaseHealthService>();
         services.AddScoped<IStoredProcedureExecutor, StoredProcedureExecutor>();
+        services.AddScoped<SqlCatalogo>();
+        services.AddScoped<IRepositorioCategorias>(provider => provider.GetRequiredService<SqlCatalogo>());
+        services.AddScoped<IRepositorioUnidadesMedida>(provider => provider.GetRequiredService<SqlCatalogo>());
+        services.AddScoped<CategoriaServicio>();
+        services.AddScoped<UnidadMedidaServicio>();
+        services.AddScoped<IRepositorioProductos, SqlProductos>();
+        services.AddScoped<ProductoServicio>();
 
         return services;
     }
