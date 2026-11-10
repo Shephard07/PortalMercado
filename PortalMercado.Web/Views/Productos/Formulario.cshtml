@@ -1,0 +1,61 @@
+@using PortalMercado.Application.Administration
+@model PortalMercado.Application.Catalogo.ProductoDatos
+@{
+    var negocio = (NamedId)ViewBag.Negocio;
+    var id = (long?)ViewBag.IdProducto;
+    var accion = id.HasValue ? "Editar" : "Crear";
+    ViewData["Title"] = id.HasValue ? "Editar producto" : "Nuevo producto";
+}
+<header class="pm-page-heading">
+    <span class="pm-eyebrow">Productos · @negocio.Nombre</span>
+    <h1>@ViewData["Title"]</h1>
+    @if (id is null)
+    {
+        <p class="pm-description">El producto se guardará como borrador.</p>
+    }
+</header>
+<section class="pm-panel p-4">
+    <form asp-action="@accion" asp-route-id="@id" asp-route-idNegocio="@negocio.Id" method="post" class="row g-3">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="col-md-8">
+            <label asp-for="Nombre" class="form-label">Nombre</label>
+            <input asp-for="Nombre" class="form-control" maxlength="200" required />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Sku" class="form-label">SKU (opcional)</label>
+            <input asp-for="Sku" class="form-control" maxlength="70" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="IdCategoria" class="form-label">ID de categoría</label>
+            <input asp-for="IdCategoria" type="number" class="form-control" min="1" required />
+            @if (User.HasClaim("pm_permission", "CATEGORIA_VER"))
+            {
+                <a asp-controller="Catalogo" asp-action="Index" target="_blank" rel="noopener">Consultar categorías</a>
+            }
+        </div>
+        <div class="col-md-4">
+            <label asp-for="IdUnidad" class="form-label">ID de unidad</label>
+            <input asp-for="IdUnidad" type="number" class="form-control" min="1" required />
+            @if (User.HasClaim("pm_permission", "UNIDAD_MEDIDA_VER"))
+            {
+                <a asp-controller="Catalogo" asp-action="Unidades" target="_blank" rel="noopener">Consultar unidades</a>
+            }
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Precio" class="form-label">Precio</label>
+            <input asp-for="Precio" type="number" min="0" step="0.01" class="form-control" required />
+        </div>
+        <div class="col-12">
+            <label asp-for="Descripcion" class="form-label">Descripción (opcional)</label>
+            <textarea asp-for="Descripcion" rows="3" class="form-control"></textarea>
+        </div>
+        <div class="col-12 form-check ms-2">
+            <input asp-for="ControlaStock" class="form-check-input" />
+            <label asp-for="ControlaStock" class="form-check-label">Controla stock</label>
+        </div>
+        <div class="col-12 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Guardar producto</button>
+            <a asp-action="Index" asp-route-idNegocio="@negocio.Id" class="btn btn-outline-secondary">Volver</a>
+        </div>
+    </form>
+</section>

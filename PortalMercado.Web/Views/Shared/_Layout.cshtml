@@ -1,3 +1,4 @@
+@using PortalMercado.Application.Catalogo
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
@@ -45,6 +46,27 @@
                                 <a class="nav-link @(currentController == "Negocios" ? "active" : null)"
                                    aria-current="@(currentController == "Negocios" ? "page" : null)"
                                    asp-controller="Negocios" asp-action="Index">Mis negocios</a>
+                            </li>
+                        }
+                        @if (User.HasClaim("pm_permission", ProductoServicio.PermisoConsultar))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(currentController == "Productos" ? "active" : null)"
+                                   asp-controller="Productos" asp-action="Index">Productos</a>
+                            </li>
+                        }
+                        @if (User.HasClaim("pm_permission", PermisosCatalogo.ConsultarCategorias))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(currentController == "Catalogo" && currentAction == "Index" ? "active" : null)"
+                                   asp-controller="Catalogo" asp-action="Index">Categorías</a>
+                            </li>
+                        }
+                        @if (User.HasClaim("pm_permission", PermisosCatalogo.ConsultarUnidades))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(currentController == "Catalogo" && currentAction == "Unidades" ? "active" : null)"
+                                   asp-controller="Catalogo" asp-action="Unidades">Unidades</a>
                             </li>
                         }
                         @if (User.HasClaim("pm_permission", "USUARIO_VER"))

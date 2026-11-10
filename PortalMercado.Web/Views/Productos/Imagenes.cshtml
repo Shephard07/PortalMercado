@@ -1,0 +1,74 @@
+@using PortalMercado.Application.Catalogo
+@model ImagenesProducto
+@{
+    ViewData["Title"] = "Imágenes del producto";
+    var puedeGestionar = User.HasClaim("pm_permission", ProductoServicio.PermisoGestionar);
+}
+<header class="pm-page-heading">
+    <span class="pm-eyebrow">Productos · @Model.Producto</span>
+    <h1>Imágenes del producto</h1>
+    <a asp-action="Detalle" asp-route-idNegocio="@Model.IdNegocio" asp-route-id="@Model.IdProducto" class="btn btn-outline-secondary">Volver al producto</a>
+</header>
+<div asp-validation-summary="All" class="text-danger"></div>
+@if (puedeGestionar)
+{
+    <section class="pm-panel p-4 mb-3" aria-labelledby="agregar-imagen">
+        <h2 id="agregar-imagen" class="h5">Agregar imagen</h2>
+        <p class="pm-description">Pega la URL HTTPS de la imagen. Las imágenes se muestran de menor a mayor orden.</p>
+        <form asp-action="GuardarImagen" asp-route-idNegocio="@Model.IdNegocio" asp-route-id="@Model.IdProducto" method="post" class="row g-3">
+            <label class="col-md-8 form-label">URL de la imagen
+                <input type="url" name="Url" class="form-control" maxlength="500" required />
+            </label>
+            <label class="col-md-4 form-label">Orden
+                <input type="number" name="Orden" min="0" value="0" class="form-control" required />
+            </label>
+            <label class="col-12"><input type="checkbox" name="Principal" value="true" /> Marcar como principal</label>
+            <div><button type="submit" class="btn btn-primary">Agregar imagen</button></div>
+        </form>
+    </section>
+}
+<section class="pm-panel" aria-label="Imágenes registradas">
+    <div class="table-responsive">
+        <table class="table pm-user-table align-middle mb-0">
+            <thead><tr><th scope="col">Imagen</th><th scope="col">Orden</th><th scope="col">Principal</th>
+                @if (puedeGestionar) { <th scope="col">Acciones</th> }
+            </tr></thead>
+            <tbody>
+                @if (Model.Imagenes.Length == 0)
+                {
+                    <tr><td colspan="@(puedeGestionar ? 4 : 3)" class="pm-table-empty">Este producto aún no tiene imágenes.</td></tr>
+                }
+                @foreach (var item in Model.Imagenes)
+                {
+                    <tr>
+                        <td>
+                            @if (Uri.TryCreate(item.Url, UriKind.Absolute, out var imagen) && imagen.Scheme == Uri.UriSchemeHttps &&
+                                 imagen.IsWellFormedOriginalString() && imagen.UserInfo.Length == 0)
+                            {
+                                <img src="@imagen.AbsoluteUri" width="64" height="64" class="rounded object-fit-cover"
+                                     alt="Imagen de @Model.Producto" loading="lazy" referrerpolicy="no-referrer" />
+                            }
+                            <small class="d-block text-break">@item.Url</small>
+                        </td>
+                        <td>@item.Orden</td><td>@(item.Principal ? "Sí" : "No")</td>
+                        @if (puedeGestionar)
+                        {
+                            <td>
+                                <details>
+                                    <summary>Editar</summary>
+                                    <form asp-action="GuardarImagen" asp-route-idNegocio="@Model.IdNegocio" asp-route-id="@Model.IdProducto"
+                                          asp-route-idImagen="@item.Id" method="post" class="d-grid gap-2 my-2">
+                                        <label>URL <input type="url" name="Url" value="@item.Url" maxlength="500" class="form-control" required /></label>
+                                        <label>Orden <input type="number" name="Orden" value="@item.Orden" min="0" class="form-control" required /></label>
+                                        <label><input type="checkbox" name="Principal" value="true" checked="@item.Principal" /> Marcar como principal</label>
+                                        <button type="submit" class="btn btn-primary btn-sm">Guardar cambios</button>
+                                    </form>
+                                </details>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

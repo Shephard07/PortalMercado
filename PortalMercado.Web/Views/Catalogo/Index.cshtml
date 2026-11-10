@@ -1,0 +1,105 @@
+@using PortalMercado.Application.Administration
+@using PortalMercado.Application.Catalogo
+@model Page<CategoriaDto>
+@{
+    ViewData["Title"] = "Categorías";
+    var puedeEditar = User.HasClaim("pm_permission", PermisosCatalogo.MantenerCategorias);
+    var buscar = (string?)ViewBag.Buscar;
+    var activa = (bool?)ViewBag.Activa;
+}
+<header class="pm-page-heading">
+    <span class="pm-eyebrow">Catálogo</span>
+    <h1>Categorías</h1>
+    <p class="pm-description">Organiza las categorías y consulta su relación con la categoría padre.</p>
+</header>
+@if (puedeEditar)
+{
+    <details class="pm-panel p-3 mb-3">
+        <summary class="fw-semibold">Nueva categoría</summary>
+        <form method="post" asp-action="Crear" class="row g-3 mt-1">
+            <label class="col-md-4 form-label">Nombre
+                <input name="Nombre" class="form-control" required maxlength="130" />
+            </label>
+            <label class="col-md-4 form-label">Slug
+                <input name="Slug" class="form-control" required maxlength="160" placeholder="frutas-frescas" />
+            </label>
+            <label class="col-md-4 form-label">ID de categoría padre (opcional)
+                <input name="IdPadre" class="form-control" type="number" min="1" />
+            </label>
+            <div><button type="submit" class="btn btn-primary">Crear categoría</button></div>
+        </form>
+    </details>
+}
+<form method="get" asp-action="Index" class="row g-3 align-items-end mb-3" aria-label="Filtros de categorías">
+    <div class="col-md-6">
+        <label for="buscar" class="form-label">Buscar por nombre o slug</label>
+        <input id="buscar" name="buscar" value="@buscar" maxlength="160" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label for="filtro-activa" class="form-label">Estado</label>
+        <select id="filtro-activa" name="activa" class="form-select">
+            <option value="">Todas</option>
+            <option value="true" selected="@(activa == true)">Activas</option>
+            <option value="false" selected="@(activa == false)">Inactivas</option>
+        </select>
+    </div>
+    <div class="col-md-auto"><button type="submit" class="btn btn-outline-secondary">Filtrar</button></div>
+</form>
+<section class="pm-panel" aria-label="Listado de categorías">
+    <div class="table-responsive">
+        <table class="table pm-user-table align-middle mb-0">
+            <thead><tr>
+                <th scope="col">ID</th><th scope="col">Nombre</th><th scope="col">Padre</th>
+                <th scope="col">Slug</th><th scope="col">Estado</th>
+                @if (puedeEditar) { <th scope="col">Acciones</th> }
+            </tr></thead>
+            <tbody>
+                @if (Model.Items.Length == 0)
+                {
+                    <tr><td colspan="@(puedeEditar ? 6 : 5)" class="pm-table-empty">No hay categorías en esta página.</td></tr>
+                }
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>@item.Id</td><th scope="row">@item.Nombre</th>
+                        <td>@(item.NombrePadre ?? "Sin padre")</td><td>@item.Slug</td>
+                        <td><span class="pm-status @(item.Activa ? "pm-status-active" : "pm-status-inactive")">@(item.Activa ? "Activa" : "Inactiva")</span></td>
+                        @if (puedeEditar)
+                        {
+                            <td>
+                                <details class="mb-2">
+                                    <summary>Editar</summary>
+                                    <form method="post" asp-action="Editar" asp-route-id="@item.Id" class="d-grid gap-2 my-2">
+                                        <label>Nombre <input name="Nombre" value="@item.Nombre" required maxlength="130" class="form-control" /></label>
+                                        <label>Slug <input name="Slug" value="@item.Slug" required maxlength="160" class="form-control" /></label>
+                                        <label>ID de categoría padre
+                                            <input name="IdPadre" value="@item.IdPadre" type="number" min="1" class="form-control" />
+                                        </label>
+                                        <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+                                    </form>
+                                </details>
+                                <form method="post" asp-action="Estado" asp-route-id="@item.Id">
+                                    <input type="hidden" name="activa" value="@(item.Activa ? "false" : "true")" />
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm">@(item.Activa ? "Desactivar" : "Activar")</button>
+                                </form>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="pm-panel-footer">
+        <span>@Model.Total categorías · Página @Model.Pagina</span>
+        <nav class="d-flex gap-2" aria-label="Páginas de categorías">
+            @if (Model.Pagina > 1)
+            {
+                <a class="btn btn-outline-secondary btn-sm" asp-action="Index" asp-route-buscar="@buscar" asp-route-activa="@activa" asp-route-pagina="@(Model.Pagina - 1)">Anterior</a>
+            }
+            @if (Model.Pagina < 100000 && (long)Model.Pagina * Model.Tamano < Model.Total)
+            {
+                <a class="btn btn-outline-secondary btn-sm" asp-action="Index" asp-route-buscar="@buscar" asp-route-activa="@activa" asp-route-pagina="@(Model.Pagina + 1)">Siguiente</a>
+            }
+        </nav>
+    </div>
+</section>

@@ -1,0 +1,26 @@
+@model PortalMercado.Application.Catalogo.UnidadMedidaDto[]
+@{
+    ViewData["Title"] = "Unidades de medida";
+}
+<header class="pm-page-heading">
+    <span class="pm-eyebrow">Catálogo</span>
+    <h1>Unidades de medida</h1>
+    <p class="pm-description">Consulta las unidades disponibles y si admiten cantidades fraccionarias.</p>
+</header>
+<section class="pm-panel" aria-label="Listado de unidades">
+    <div class="table-responsive">
+        <table class="table pm-user-table align-middle mb-0">
+            <thead><tr><th scope="col">ID</th><th scope="col">Código</th><th scope="col">Nombre</th><th scope="col">Admite fracciones</th></tr></thead>
+            <tbody>
+                @if (Model.Length == 0)
+                {
+                    <tr><td colspan="4" class="pm-table-empty">Todavía no hay unidades registradas.</td></tr>
+                }
+                @foreach (var unidad in Model)
+                {
+                    <tr><td>@unidad.Id</td><th scope="row">@unidad.Codigo</th><td>@unidad.Nombre</td><td>@(unidad.PermiteFraccion ? "Sí" : "No")</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
