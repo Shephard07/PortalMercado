@@ -1,0 +1,101 @@
+@model PortalMercado.Web.Models.TiendasDirectorioModelo
+@{
+    Layout = "_LayoutPublico";
+    ViewData["Title"] = "Tiendas de tu mercado";
+}
+<section class="tp-hero" aria-labelledby="titulo-directorio">
+    <div class="tp-hero-texto">
+        <span class="tp-etiqueta">Tu mercado de siempre, ahora en línea</span>
+        <h1 id="titulo-directorio">Cada tienda tiene<br />algo para ti.</h1>
+        <p>Conoce a los comercios de tu mercado, consulta sus horarios y encuentra dónde visitarlos.</p>
+        <a class="tp-boton tp-acento" href="#directorio">Explorar tiendas <span aria-hidden="true">→</span></a>
+    </div>
+    <div class="tp-hero-arte" aria-hidden="true">
+        <span class="tp-sol"></span>
+        <img src="~/images/tienda-reemplazo.svg" alt="" width="240" height="200" />
+        <span class="tp-hero-sello">COMERCIO LOCAL</span>
+    </div>
+</section>
+<div class="tp-beneficios">
+    <div><span class="tp-beneficio-icono" aria-hidden="true">⌂</span><div><strong>Comercios del mercado</strong><p>Encuentra tu tienda favorita</p></div></div>
+    <div><span class="tp-beneficio-icono" aria-hidden="true">◷</span><div><strong>Organiza tu visita</strong><p>Consulta el horario comercial</p></div></div>
+    <div><span class="tp-beneficio-icono" aria-hidden="true">↗</span><div><strong>Conoce cada negocio</strong><p>Explora su perfil público</p></div></div>
+</div>
+<section id="directorio" aria-labelledby="titulo-tiendas">
+    <div class="tp-titulo-fila">
+        <div><span class="tp-sobretitulo">Explora tu mercado</span><h2 id="titulo-tiendas">Encuentra una tienda</h2></div>
+        <span class="tp-conteo">@Model.Pagina.Total @(Model.Pagina.Total == 1 ? "tienda encontrada" : "tiendas encontradas")</span>
+    </div>
+    <form class="tp-filtros" asp-controller="Tiendas" asp-action="Directorio" method="get" aria-label="Filtros de tiendas">
+        <div class="tp-campo tp-campo-buscar">
+            <label for="nombre-tienda">Nombre de la tienda</label>
+            <input id="nombre-tienda" name="q" value="@Model.Filtro.Buscar" maxlength="180" placeholder="Por ejemplo, Frutería El Sol" />
+        </div>
+        <div class="tp-campo">
+            <label for="mercado-tienda">Mercado</label>
+            <select id="mercado-tienda" name="mercadoId">
+                <option value="">Todos los mercados</option>
+                @foreach (var mercado in Model.Opciones.Mercados)
+                {
+                    <option value="@mercado.Id" selected="@(Model.Filtro.MercadoId == mercado.Id)">@mercado.Nombre</option>
+                }
+            </select>
+        </div>
+        <div class="tp-campo">
+            <label for="categoria-tienda">Categoría</label>
+            <select id="categoria-tienda" name="categoriaId">
+                <option value="">Todas las categorías</option>
+                @foreach (var categoria in Model.Opciones.Categorias)
+                {
+                    <option value="@categoria.Id" selected="@(Model.Filtro.CategoriaId == categoria.Id)">@categoria.Nombre</option>
+                }
+            </select>
+        </div>
+        <input type="hidden" name="tamano" value="@Model.Filtro.Tamano" />
+        <button class="tp-boton tp-primario" type="submit">Filtrar</button>
+        <a class="tp-limpiar" asp-action="Directorio">Limpiar</a>
+    </form>
+    @if (Model.Pagina.Items.Length == 0)
+    {
+        <div class="tp-vacio"><h3>No encontramos tiendas en esta página</h3><p>Prueba con otro nombre, ajusta los filtros o vuelve al directorio.</p><a class="tp-boton tp-secundario" asp-action="Directorio">Ver tiendas</a></div>
+    }
+    else
+    {
+        <div class="tp-tarjetas">
+            @foreach (var tienda in Model.Pagina.Items)
+            {
+                <article class="tp-tarjeta">
+                    <div class="tp-tarjeta-visual">
+                        <img src="@(tienda.LogoUrl ?? Url.Content("~/images/tienda-reemplazo.svg"))"
+                             data-logo-tienda data-reemplazo="@Url.Content("~/images/tienda-reemplazo.svg")"
+                             alt="" loading="lazy" referrerpolicy="no-referrer" width="160" height="140" />
+                        <span class="tp-tarjeta-tipo">Tienda del mercado</span>
+                    </div>
+                    <div class="tp-tarjeta-cuerpo">
+                        <p class="tp-mercado">@tienda.Mercado</p>
+                        <h3><a asp-action="Detalle" asp-route-slug="@tienda.Slug">@tienda.NombreComercial</a></h3>
+                        <p>Conoce su información comercial y horarios de atención.</p>
+                        <a class="tp-boton tp-secundario" asp-action="Detalle" asp-route-slug="@tienda.Slug">Visitar tienda <span aria-hidden="true">→</span></a>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+    <nav class="tp-paginacion" aria-label="Páginas del directorio">
+        <span>Página @Model.Pagina.Pagina · @Model.Pagina.Total tiendas</span>
+        <div>
+            @if (Model.Pagina.Pagina > 1)
+            {
+                <a class="tp-boton tp-secundario" asp-action="Directorio" asp-route-mercadoId="@Model.Filtro.MercadoId"
+                   asp-route-categoriaId="@Model.Filtro.CategoriaId" asp-route-q="@Model.Filtro.Buscar"
+                   asp-route-tamano="@Model.Filtro.Tamano" asp-route-pagina="@(Model.Pagina.Pagina - 1)">Anterior</a>
+            }
+            @if (Model.Pagina.Pagina < 100000 && (long)Model.Pagina.Pagina * Model.Pagina.Tamano < Model.Pagina.Total)
+            {
+                <a class="tp-boton tp-primario" asp-action="Directorio" asp-route-mercadoId="@Model.Filtro.MercadoId"
+                   asp-route-categoriaId="@Model.Filtro.CategoriaId" asp-route-q="@Model.Filtro.Buscar"
+                   asp-route-tamano="@Model.Filtro.Tamano" asp-route-pagina="@(Model.Pagina.Pagina + 1)">Siguiente</a>
+            }
+        </div>
+    </nav>
+</section>

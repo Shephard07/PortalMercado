@@ -1,0 +1,38 @@
+@model PortalMercado.Web.Controllers.ConsentimientosModelo
+@{ Layout = "_LayoutPublico"; ViewData["Title"] = "Mis consentimientos"; }
+<section class="rc-panel">
+    <h1>Mis consentimientos</h1>
+    <p>Recibir promociones es opcional. Tu decisión no impide explorar el catálogo.</p>
+    @if (TempData["ConsentimientoMensaje"] is string mensaje) { <p role="status">@mensaje</p> }
+    <div asp-validation-summary="All" role="alert" class="rc-error"></div>
+    @if (Model.Promociones is not null)
+    {
+        <h2>Promociones</h2>
+        <p><a asp-controller="Registro" asp-action="Documento" asp-route-tipo="promociones" target="_blank" rel="noopener">Leer condiciones vigentes (abre otra pestaña)</a></p>
+        <p>Versión @Model.Promociones.Version. La autorización solo se registra cuando pulses el botón.</p>
+        <form asp-action="Autorizar" method="post">
+            <input name="version" value="@Model.Promociones.Version" type="hidden" />
+            <button type="submit">Autorizar promociones</button>
+        </form>
+    }
+    else { <p>Las condiciones para autorizar promociones no están disponibles en este momento.</p> }
+    @if (Model.VersionRetiro is not null)
+    {
+        <form asp-action="Retirar" method="post">
+            <input name="version" value="@Model.VersionRetiro" type="hidden" />
+            <button type="submit">Retirar autorización de promociones</button>
+        </form>
+    }
+    <h2>Historial</h2>
+    @if (Model.Historial.Length == 0) { <p>Todavía no hay consentimientos registrados.</p> }
+    @foreach (var item in Model.Historial)
+    {
+        <article class="rc-direccion">
+            <h3>@(item.Tipo switch { "TERMINOS" => "Términos y condiciones", "PRIVACIDAD" => "Privacidad", _ => "Promociones" })</h3>
+            <p>Versión: @item.VersionDocumento</p>
+            <p>@(item.Aceptado ? "Aceptado" : "No autorizado") · @item.RegistradoEn.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss 'UTC'")</p>
+        </article>
+    }
+    <p>Los registros anteriores se conservan al cambiar tu preferencia.</p>
+    <a asp-controller="Cliente" asp-action="Perfil">Volver a mi perfil</a>
+</section>

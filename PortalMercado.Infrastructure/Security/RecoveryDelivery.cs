@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 using PortalMercado.Application.Security;
 namespace PortalMercado.Infrastructure.Security;
 
-public sealed class RecoveryDelivery(IConfiguration config, IHostEnvironment environment) : IRecoveryDelivery
+public sealed class RecoveryDelivery(IConfiguration config, IHostEnvironment environment) : IRecoveryDelivery, IAccountDelivery
 {
     public string PickupPath => config["Recovery:PickupPath"] ?? Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PortalMercado", "CorreoPruebas");
@@ -39,6 +39,13 @@ public sealed class RecoveryDelivery(IConfiguration config, IHostEnvironment env
             "\r\n\r\nSi la cuenta está habilitada, el enlace permite establecer una contraseña nueva durante 15 minutos y una sola vez. " +
             "Solo sirve el enlace más reciente. Si no solicitaste este cambio, ignora este mensaje. " +
             "El segundo factor de las cuentas administrativas sigue siendo obligatorio.\r\n";
+        await DeliverMessageAsync(recipient, "Recuperacion de acceso a PortalMercado", body, ct);
+    }
+    public async Task DeliverMessageAsync(string recipient, string subject, string body, CancellationToken ct)
+    {
+        CheckConfiguration();
+        // No permitir inyección de cabeceras en archivos EML.
+        if (recipient.Any(char.IsControl) || subject.Any(char.IsControl)) throw Unavailable();
         try
         {
             // Se entrega el mismo tipo de mensaje para direcciones existentes y desconocidas.
@@ -52,11 +59,11 @@ public sealed class RecoveryDelivery(IConfiguration config, IHostEnvironment env
                 await using var stream = new FileStream(file, options);
                 await using var writer = new StreamWriter(stream, new UTF8Encoding(false));
                 await writer.WriteAsync(("From: PortalMercado <no-reply@example.invalid>\r\nTo: " + recipient +
-                    "\r\nSubject: Recuperacion de acceso a PortalMercado\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n" + body).AsMemory(), ct);
+                    "\r\nSubject: " + subject + "\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n" + body).AsMemory(), ct);
                 await writer.FlushAsync(ct);
                 return;
             }
-            using var message = new MailMessage(config["Recovery:Smtp:From"]!, recipient, "Recuperación de acceso a PortalMercado", body);
+            using var message = new MailMessage(config["Recovery:Smtp:From"]!, recipient, subject, body);
             using var smtp = new SmtpClient(config["Recovery:Smtp:Host"], int.Parse(config["Recovery:Smtp:Port"]!))
             { EnableSsl = true, UseDefaultCredentials = false, Credentials = new NetworkCredential(config["Recovery:Smtp:User"], config["Recovery:Smtp:Password"]) };
             using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct); timeout.CancelAfter(TimeSpan.FromSeconds(10));

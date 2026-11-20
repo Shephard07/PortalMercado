@@ -1,0 +1,7 @@
+@model TiendasErrorModelo
+@{ Layout = "_LayoutPublico"; ViewData["Title"] = Model.Estado == 400 ? "Revisa tu búsqueda" : "Consulta no disponible"; }
+<section class="tp-vacio tp-error"><span class="tp-sobretitulo">PortalMercado · @Model.Estado</span>
+    <h1>@ViewData["Title"]</h1><p>@Model.Mensaje</p>
+    <a class="tp-boton tp-primario" asp-action="Buscar">Volver al buscador</a>
+    <a class="tp-volver" asp-action="Inicio">Ir al portal público</a>
+</section>

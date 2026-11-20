@@ -1,0 +1,69 @@
+@model PortadaPublicaModelo
+<section class="ep-hero" aria-labelledby="ep-titulo">
+    <div>
+        <span class="tp-sobretitulo">Tu mercado, más cerca</span>
+        <h1 id="ep-titulo">Productos de tus tiendas favoritas</h1>
+        <p>Explora los comercios de tu mercado y consulta sus productos, precios y disponibilidad.</p>
+        <div class="ep-acciones">
+            <a class="tp-boton tp-primario" asp-controller="Explorar" asp-action="Buscar" asp-route-tipo="productos">Explorar productos →</a>
+            <a class="tp-boton tp-secundario" asp-controller="Tiendas" asp-action="Directorio">Explorar tiendas</a>
+        </div>
+    </div>
+    <img src="~/images/producto-reemplazo.svg" width="280" height="240" alt="" />
+</section>
+<section class="ep-beneficios" aria-label="Información del portal">
+    <div><strong>Comercios de tu mercado</strong><p>Consulta cada tienda y su ubicación.</p></div>
+    <div><strong>Precios publicados</strong><p>Compara productos antes de tu visita.</p></div>
+    <div><strong>Explora sin registrarte</strong><p>La consulta pública no requiere cuenta.</p></div>
+</section>
+@await Html.PartialAsync("_AccesoCompraFutura")
+@if (Model.NoDisponible)
+{
+    <section class="tp-vacio" role="status">
+        <h2>No podemos cargar el catálogo en este momento</h2>
+        <p>Intenta nuevamente en unos minutos. Puedes seguir navegando por el portal.</p>
+        <a class="tp-boton tp-secundario" asp-controller="Explorar" asp-action="Inicio">Intentar de nuevo</a>
+    </section>
+}
+else if (Model.Datos is { } datos)
+{
+    <section class="ep-seccion" aria-labelledby="ep-mercados">
+        <div class="tp-titulo-fila"><h2 id="ep-mercados">Explora tu mercado</h2></div>
+        @if (datos.Mercados.Length == 0) { <p class="ep-mensaje" role="status">Todavía no hay mercados con tiendas públicas disponibles.</p> }
+        <div class="ep-mercados">
+            @foreach (var mercado in datos.Mercados)
+            {
+                <a asp-controller="Explorar" asp-action="Buscar" asp-route-mercadoId="@mercado.Id"><span aria-hidden="true">▦</span><strong>@mercado.Nombre</strong><span>Explorar →</span></a>
+            }
+        </div>
+    </section>
+    <section class="ep-seccion" aria-labelledby="ep-categorias">
+        <h2 id="ep-categorias">¿Qué necesitas hoy?</h2>
+        @if (datos.Categorias.Length == 0) { <p class="ep-mensaje">No hay categorías con productos publicados.</p> }
+        <div class="ep-categorias">
+            @foreach (var categoria in datos.Categorias)
+            {
+                <a asp-controller="Explorar" asp-action="Buscar" asp-route-tipo="productos" asp-route-categoriaId="@categoria.Id">@categoria.Nombre</a>
+            }
+        </div>
+    </section>
+    <section class="ep-seccion" aria-labelledby="ep-productos">
+        <div class="tp-titulo-fila"><h2 id="ep-productos">Productos publicados</h2>
+            <a asp-controller="Explorar" asp-action="Buscar" asp-route-tipo="productos">Ver todos →</a></div>
+        @if (datos.Productos.Length == 0) { <p class="tp-vacio" role="status">Todavía no hay productos publicados para mostrar.</p> }
+        <div class="ep-resultados">
+            @foreach (var resultado in datos.Productos) { @await Html.PartialAsync("_ResultadoPublico", resultado) }
+        </div>
+    </section>
+    <section class="ep-seccion" aria-labelledby="ep-tiendas">
+        <div class="tp-titulo-fila"><h2 id="ep-tiendas">Conoce las tiendas</h2><a asp-controller="Tiendas" asp-action="Directorio">Ver directorio →</a></div>
+        @if (datos.Tiendas.Length == 0) { <p class="ep-mensaje">No hay tiendas públicas disponibles.</p> }
+        <div class="ep-mercados">
+            @foreach (var tienda in datos.Tiendas)
+            {
+                <a asp-controller="Tiendas" asp-action="Detalle" asp-route-slug="@tienda.Slug"><strong>@tienda.NombreComercial</strong><span>@tienda.Mercado</span><span>Conocer tienda →</span></a>
+            }
+        </div>
+    </section>
+}
+<p class="ep-nota" id="ep-compra-aviso">Las compras en línea estarán disponibles en un próximo ciclo.</p>

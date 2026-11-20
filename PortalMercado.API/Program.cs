@@ -1,6 +1,8 @@
+using PortalMercado.Infrastructure.Clientes;
 using PortalMercado.Infrastructure.Security;
 using PortalMercado.API.Middleware;
 using PortalMercado.Infrastructure;
+using PortalMercado.Infrastructure.Tiendas;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +10,9 @@ builder.Logging.ClearProviders();
 builder.Logging.AddJsonConsole(options => options.IncludeScopes = true);
 
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddTiendas(builder.Configuration, builder.Environment);
 builder.Services.AddPortalAccess("API", builder.Configuration, builder.Environment);
+builder.Services.AddRegistroClientes(builder.Configuration, builder.Environment);
 builder.Services.AddControllers();
 builder.Services.AddScoped<PortalMercado.API.Controllers.ApiAntiforgeryFilter>();
 builder.Services.AddOpenApi(options => options.AddSchemaTransformer((schema, context, _) =>
@@ -34,6 +38,14 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+if (app.Services.GetRequiredService<PortalMercado.Infrastructure.Clientes.Demostracion.ClientesModo>().Demostracion)
+{
+    app.Use(async (context, next) =>
+    {
+        context.Response.Headers["X-PortalMercado-Clientes-Modo"] = "Demostracion-temporal";
+        await next(context);
+    });
+}
 if (args.Contains("--bootstrap-admin") || args.Contains("--provision-test-user"))
 {
     using var scope = app.Services.CreateScope();

@@ -1,3 +1,8 @@
+using Microsoft.AspNetCore.DataProtection;
+using PortalMercado.Application.Clientes;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -13,12 +18,18 @@ namespace PortalMercado.Web.Controllers;
 public sealed class CuentaController(IAuthService auth, IMfaService mfa) : Controller
 {
     [HttpGet, AllowAnonymous]
-    public IActionResult Login() => View(new LoginRequest());
+    public IActionResult Login(string? returnUrl = null)
+    {
+        ViewData["ReturnUrl"] = DestinoCliente.Normalizar(returnUrl ?? "/");
+        return View(new LoginRequest());
+    }
 
     [HttpPost, AllowAnonymous, EnableRateLimiting("auth")]
-    public async Task<IActionResult> Login(LoginRequest request, CancellationToken ct)
+    public async Task<IActionResult> Login(LoginRequest request, CancellationToken ct, string? returnUrl = null)
     {
-        if (!ModelState.IsValid) { request.Password = ""; return View(request); }
+        var destino = DestinoCliente.Normalizar(returnUrl ?? "/");
+        ViewData["ReturnUrl"] = destino;
+        if (!ModelState.IsValid) { ModelState.Remove(nameof(request.Password)); request.Password = ""; return View(request); }
         var outcome = await auth.LoginAsync(request, "MVC", CorrelationId, ct);
         if (outcome is null)
         {
@@ -33,12 +44,13 @@ public sealed class CuentaController(IAuthService auth, IMfaService mfa) : Contr
                 HttpOnly = true, Secure = true, SameSite = SameSiteMode.Strict, Path = "/",
                 Expires = new DateTimeOffset(DateTime.SpecifyKind(outcome.Mfa.ExpiresUtc, DateTimeKind.Utc))
             });
+            GuardarDestinoMfa(outcome.Mfa.Challenge, destino, outcome.Mfa.ExpiresUtc);
             return RedirectToAction(outcome.Mfa.EnrollmentRequired ? nameof(ConfigurarMfa) : nameof(VerificarMfa));
         }
         var session = outcome.Session!;
         await HttpContext.SignInAsync(PortalAccess.Scheme,
             PortalAccess.Principal(session.Profile, session.Credential), PortalAccess.Properties(session));
-        return RedirectToAction(nameof(Perfil));
+        return LocalRedirect(destino);
     }
 
     [HttpPost, Authorize]
@@ -46,6 +58,8 @@ public sealed class CuentaController(IAuthService auth, IMfaService mfa) : Contr
     {
         await auth.LogoutAsync(User.FindFirst(PortalAccess.SessionClaim)!.Value, "MVC", CorrelationId, ct);
         await HttpContext.SignOutAsync(PortalAccess.Scheme);
+        Response.Cookies.Delete(DestinoCookie, OpcionesDestino());
+        Response.Cookies.Delete(MfaCookie, OpcionesDestino());
         return RedirectToAction(nameof(Login));
     }
 
@@ -91,8 +105,38 @@ public sealed class CuentaController(IAuthService auth, IMfaService mfa) : Contr
         Response.Cookies.Delete(MfaCookie, new CookieOptions { Secure = true, HttpOnly = true, SameSite = SameSiteMode.Strict, Path = "/" });
         await HttpContext.SignInAsync(PortalAccess.Scheme,
             PortalAccess.Principal(result.Session.Profile, result.Session.Credential), PortalAccess.Properties(result.Session));
+        var destino = LeerDestinoMfa(challenge);
+        Response.Cookies.Delete(DestinoCookie, OpcionesDestino());
+        ViewData["ReturnUrl"] = destino;
         if (result.RecoveryCodes.Length > 0) return View("CodigosRecuperacion", result.RecoveryCodes);
-        return RedirectToAction(nameof(Perfil));
+        return LocalRedirect(destino);
+    }
+
+    private const string DestinoCookie = "__Host-PortalMercado.MfaDestino.MVC";
+    private sealed record DestinoMfa(string RetoHash, string Destino, DateTime Expira);
+    private static string HashReto(string reto) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(reto)));
+    private static CookieOptions OpcionesDestino() => new()
+        { HttpOnly = true, Secure = true, SameSite = SameSiteMode.Strict, Path = "/", IsEssential = true };
+    private IDataProtector Protector => HttpContext.RequestServices.GetRequiredService<IDataProtectionProvider>()
+        .CreateProtector("PortalMercado.MVC.DestinoMfa.v1");
+    private void GuardarDestinoMfa(string reto, string destino, DateTime expira)
+    {
+        if (Encoding.UTF8.GetByteCount(destino) > 2048) destino = "/";
+        var opciones = OpcionesDestino(); opciones.Expires = new DateTimeOffset(DateTime.SpecifyKind(expira, DateTimeKind.Utc));
+        Response.Cookies.Append(DestinoCookie,
+            Protector.Protect(JsonSerializer.Serialize(new DestinoMfa(HashReto(reto), destino, expira))), opciones);
+    }
+    private string LeerDestinoMfa(string reto)
+    {
+        var cookie = Request.Cookies[DestinoCookie];
+        if (cookie is null) return "/";
+        try
+        {
+            var dato = JsonSerializer.Deserialize<DestinoMfa>(Protector.Unprotect(cookie));
+            return dato is not null && dato.RetoHash == HashReto(reto) && dato.Expira > DateTime.UtcNow
+                ? DestinoCliente.Normalizar(dato.Destino) : "/";
+        }
+        catch (Exception ex) when (ex is CryptographicException or JsonException or FormatException) { return "/"; }
     }
 
     private string CorrelationId => Activity.Current?.TraceId.ToString() ?? HttpContext.TraceIdentifier;

@@ -1,12 +1,16 @@
+using PortalMercado.Infrastructure.Clientes;
 using PortalMercado.Infrastructure.Security;
 using PortalMercado.Infrastructure;
 using PortalMercado.Web.Middleware;
+using PortalMercado.Infrastructure.Tiendas;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddJsonConsole(options => options.IncludeScopes = true);
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddTiendas(builder.Configuration, builder.Environment);
 builder.Services.AddPortalAccess("MVC", builder.Configuration, builder.Environment);
+builder.Services.AddRegistroClientes(builder.Configuration, builder.Environment);
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

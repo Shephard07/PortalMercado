@@ -30,7 +30,9 @@
         <dd>@(Model.Mercados.Length > 0 ? string.Join(", ", Model.Mercados) : "Sin asignaciones")</dd>
     </dl>
     <div class="pm-profile-actions">
+        <a class="btn btn-outline-secondary" asp-controller="Cliente" asp-action="Perfil">Perfil de cliente y direcciones</a>
         <a class="btn btn-primary" asp-controller="Password" asp-action="CambiarPassword">Cambiar contraseña</a>
+        <a class="btn btn-outline-secondary" asp-controller="CorreoCliente" asp-action="Cambiar">Cambiar correo</a>
         <form asp-controller="Cuenta" asp-action="Logout" method="post">
             <button type="submit" class="btn btn-outline-secondary">Cerrar sesión</button>
         </form>

@@ -1,0 +1,11 @@
+@model PortalMercado.Application.Clientes.ConfirmacionCorreoClienteSolicitud
+@{ Layout = "_LayoutPublico"; ViewData["Title"] = "Confirmar cambio de correo"; }
+<section class="rc-panel">
+<h1>Confirmar cambio de correo</h1>
+<p>Confirma solo si tú solicitaste cambiar el correo de esta cuenta. Se cerrarán tus sesiones y tendrás que entrar con el nuevo correo.</p>
+<form asp-action="Confirmar" method="post">
+<input asp-for="Token" type="hidden" />
+<button type="submit">Confirmar cambio de correo</button>
+</form>
+<a asp-controller="Cliente" asp-action="Perfil">Cancelar y volver a mi perfil</a>
+</section>

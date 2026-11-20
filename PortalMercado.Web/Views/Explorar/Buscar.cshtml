@@ -1,0 +1,42 @@
+@model PortalMercado.Application.Exploracion.ExploracionPagina
+@{ Layout = "_LayoutPublico"; ViewData["Title"] = "Búsqueda pública"; var f = Model.Filtro; var p = Model.Resultados; }
+<header class="tp-titulo-fila"><div><span class="tp-sobretitulo">Explora tu mercado</span><h1>Encuentra lo que necesitas</h1></div>
+    <span role="status">@p.Total @(p.Total == 1 ? "resultado" : "resultados")</span></header>
+<form class="tp-filtros ep-filtros" asp-controller="Explorar" asp-action="Buscar" method="get" data-explorar-form aria-label="Filtros de búsqueda pública">
+    <div class="tp-campo"><label for="ep-q">Producto, tienda o categoría</label><input id="ep-q" name="q" value="@f.Buscar" maxlength="200" placeholder="¿Qué necesitas hoy?" /></div>
+    <div class="tp-campo"><label for="ep-mercado">Mercado</label><select id="ep-mercado" name="mercadoId"><option value="">Todos los mercados</option>
+        @if (f.MercadoId is long mercadoAusente && !Model.Mercados.Any(m => m.Id == mercadoAusente)) { <option value="@mercadoAusente" selected>Mercado no disponible</option> }
+        @foreach (var m in Model.Mercados) { <option value="@m.Id" selected="@(f.MercadoId == m.Id)">@m.Nombre</option> }</select></div>
+    <div class="tp-campo"><label for="ep-categoria">Categoría</label><select id="ep-categoria" name="categoriaId"><option value="">Todas las categorías</option>
+        @if (f.CategoriaId is long categoriaAusente && !Model.Categorias.Any(c => c.Id == categoriaAusente)) { <option value="@categoriaAusente" selected>Categoría no disponible en este mercado</option> }
+        @foreach (var c in Model.Categorias) { <option value="@c.Id" selected="@(f.CategoriaId == c.Id)">@c.Nombre</option> }</select></div>
+    <div class="tp-campo"><label for="ep-tipo">Mostrar</label><select id="ep-tipo" name="tipo">
+        <option value="todos" selected="@(f.Tipo == "todos")">Todos</option><option value="productos" selected="@(f.Tipo == "productos")">Productos</option>
+        <option value="tiendas" selected="@(f.Tipo == "tiendas")">Tiendas</option><option value="categorias" selected="@(f.Tipo == "categorias")">Categorías</option></select></div>
+    <div class="tp-campo"><label for="ep-orden">Ordenar por</label><select id="ep-orden" name="orden">
+        <option value="nombre" selected="@(f.Orden == "nombre")">Nombre</option><option value="precio-asc" selected="@(f.Orden == "precio-asc")">Menor precio</option>
+        <option value="precio-desc" selected="@(f.Orden == "precio-desc")">Mayor precio</option></select></div>
+    <input type="hidden" name="tamano" value="@f.Tamano" />
+    <button type="submit" class="tp-boton tp-primario">Filtrar</button><a asp-action="Buscar">Limpiar</a>
+    <p class="ep-ayuda">Para ordenar por precio, selecciona Productos.</p>
+    <p class="ep-cargando" role="status" aria-live="polite" hidden>Buscando resultados…</p>
+</form>
+@await Html.PartialAsync("_AccesoCompraFutura")
+<p class="ep-nota" id="ep-compra-aviso">La consulta es pública. Las compras en línea estarán disponibles próximamente.</p>
+@if (p.Items.Length == 0)
+{
+    <section class="tp-vacio" role="status"><h2>No encontramos resultados en esta página</h2><p>Prueba otro nombre, cambia de página o limpia los filtros.</p><a asp-action="Buscar">Ver todo</a></section>
+}
+else
+{
+    <section class="ep-resultados" aria-label="Resultados de búsqueda">
+        @foreach (var resultado in p.Items) { @await Html.PartialAsync("_ResultadoPublico", resultado) }
+    </section>
+}
+<nav class="ep-paginacion" aria-label="Páginas de resultados">
+    <span>Página @p.Pagina · @p.Total resultados</span>
+    <div>
+        @if (p.Pagina > 1) { <a class="tp-boton tp-secundario" asp-action="Buscar" asp-route-q="@f.Buscar" asp-route-mercadoId="@f.MercadoId" asp-route-categoriaId="@f.CategoriaId" asp-route-tipo="@f.Tipo" asp-route-orden="@f.Orden" asp-route-pagina="@(p.Pagina - 1)" asp-route-tamano="@p.Tamano">Anterior</a> }
+        @if ((long)p.Pagina * p.Tamano < p.Total) { <a class="tp-boton tp-secundario" asp-action="Buscar" asp-route-q="@f.Buscar" asp-route-mercadoId="@f.MercadoId" asp-route-categoriaId="@f.CategoriaId" asp-route-tipo="@f.Tipo" asp-route-orden="@f.Orden" asp-route-pagina="@(p.Pagina + 1)" asp-route-tamano="@p.Tamano">Siguiente</a> }
+    </div>
+</nav>

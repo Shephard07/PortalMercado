@@ -1,0 +1,66 @@
+@inject PortalMercado.Infrastructure.Tiendas.TiendasModo Modo
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] · PortalMercado</title>
+    <link rel="stylesheet" href="~/css/tiendas.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/explorar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/registro.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/clientes-demostracion.css" asp-append-version="true" />
+</head>
+<body class="portal-publico">
+    <a class="tp-saltar" href="#contenido">Saltar al contenido</a>
+    <header class="tp-cabecera">
+        <div class="tp-contenedor tp-barra">
+            <a class="tp-marca" asp-controller="Explorar" asp-action="Inicio">
+                <span class="tp-marca-icono" aria-hidden="true">▦</span> Portal<span>Mercado</span>
+            </a>
+            <form class="tp-busqueda" asp-controller="Explorar" asp-action="Buscar" data-explorar-form method="get" role="search">
+                <label class="tp-solo-lector" for="busqueda-principal">Buscar productos, tiendas y categorías</label>
+                <input id="busqueda-principal" name="q" value="@Context.Request.Query["q"]"
+                       placeholder="Busca productos, tiendas o categorías" maxlength="200" />
+                <button type="submit">Buscar</button>
+            </form>
+            <nav class="tp-accesos" aria-label="Navegación principal">
+                <a asp-controller="Explorar" asp-action="Inicio">Inicio</a>
+                <a asp-controller="Tiendas" asp-action="Directorio">Tiendas</a>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a asp-controller="Cliente" asp-action="Perfil">Mi cuenta</a>
+                    <a class="tp-boton tp-secundario" asp-controller="Home" asp-action="Index">Mi panel</a>
+                }
+                else
+                {
+                    <a asp-controller="Registro" asp-action="Index" asp-route-returnUrl="@(Context.Request.Path.ToString() + Context.Request.QueryString.ToString())">Crear cuenta</a>
+                    <a class="tp-boton tp-secundario" asp-controller="Cuenta" asp-action="Login" asp-route-returnUrl="@(Context.Request.Path.ToString() + Context.Request.QueryString.ToString())">Ingresar</a>
+                }
+            </nav>
+        </div>
+        <div class="tp-subbarra"><div class="tp-contenedor">Comercios locales · Productos, precios y disponibilidad</div></div>
+    </header>
+    @if (Modo.Demostracion)
+    {
+        <div class="tp-demo" role="note">Demostración · Tiendas y contactos ficticios</div>
+    }
+    @if (Modo.SqlLocal)
+    {
+        <div class="tp-demo" role="note">Entorno local de pruebas · Tiendas conectadas a SQL Server</div>
+    }
+    @await Html.PartialAsync("_AvisoClientesDemostracion")
+    <main id="contenido" class="tp-contenedor tp-principal" tabindex="-1">
+        @RenderBody()
+    </main>
+    <footer class="tp-pie">
+        <div class="tp-contenedor">
+            <a class="tp-marca" asp-controller="Explorar" asp-action="Inicio">Portal<span>Mercado</span></a>
+            <p>Explora los productos y conoce las tiendas de tu mercado.</p>
+            <a asp-controller="Home" asp-action="Index">Ir al inicio del sistema</a>
+        </div>
+    </footer>
+    <script src="~/js/explorar.js" asp-append-version="true" defer></script>
+    <script src="~/js/tiendas.js" asp-append-version="true" defer></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

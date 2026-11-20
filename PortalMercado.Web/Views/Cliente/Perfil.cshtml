@@ -1,0 +1,26 @@
+@model PortalMercado.Application.Clientes.ClientePerfil
+@{ Layout = "_LayoutPublico"; ViewData["Title"] = "Mi perfil de cliente"; }
+<section class="rc-panel">
+    <h1>Mi perfil de cliente</h1>
+    @if (TempData["ClienteMensaje"] is string mensaje) { <p role="status">@mensaje</p> }
+    <p><strong>@Model.Nombre</strong><br />@Model.Correo</p>
+    <p>El nombre y el correo pertenecen a tu cuenta de acceso. Este formulario actualiza tus datos de cliente.</p>
+    <form asp-action="Perfil" method="post">
+        <div asp-validation-summary="All" class="rc-error" role="alert"></div>
+        <label asp-for="Datos.Apellidos">Apellidos</label>
+        <input asp-for="Datos.Apellidos" autocomplete="family-name" maxlength="150" />
+        <label asp-for="Datos.Celular">Celular</label>
+        <input asp-for="Datos.Celular" type="tel" autocomplete="tel" maxlength="30" />
+        <label asp-for="Datos.TipoDocumento">Tipo de documento (opcional)</label>
+        <input asp-for="Datos.TipoDocumento" maxlength="4" aria-describedby="documento-ayuda" />
+        <label asp-for="Datos.NumeroDocumento">Número de documento (opcional)</label>
+        <input asp-for="Datos.NumeroDocumento" maxlength="20" aria-describedby="documento-ayuda" />
+        <p id="documento-ayuda">Completa ambos campos del documento o deja ambos vacíos.</p>
+        <button type="submit">Guardar perfil</button>
+    </form>
+    <p><a asp-controller="CorreoCliente" asp-action="Cambiar">Cambiar correo de acceso</a></p>
+    <p><a asp-action="Direcciones">Mis direcciones</a></p>
+    <p><a asp-controller="Consentimientos" asp-action="Index">Mis consentimientos</a></p>
+    <p><a asp-controller="Compras" asp-action="Preparar" asp-route-returnUrl="/explorar">Compras en próximos ciclos</a></p>
+    <a asp-controller="Cuenta" asp-action="Perfil">Seguridad y datos de acceso</a>
+</section>

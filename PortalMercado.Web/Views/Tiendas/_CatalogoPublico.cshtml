@@ -1,0 +1,107 @@
+@using System.Globalization
+@model PortalMercado.Application.Tiendas.CatalogoTiendaPublico
+@{
+    var filtro = Model.Filtro;
+    var pagina = Model.Productos;
+}
+<section id="catalogo" aria-labelledby="titulo-productos">
+    <div class="tp-titulo-fila">
+        <div><span class="tp-sobretitulo">Explora nuestra selección</span><h2 id="titulo-productos">Productos de la tienda</h2></div>
+        <span class="tp-conteo">@pagina.Total @(pagina.Total == 1 ? "producto encontrado" : "productos encontrados")</span>
+    </div>
+    <form class="tp-filtros" asp-action="Detalle" asp-route-slug="@Model.Tienda.Slug" method="get" aria-label="Filtros del catálogo">
+        <div class="tp-campo tp-campo-buscar">
+            <label for="nombre-producto">Nombre del producto</label>
+            <input id="nombre-producto" name="q" value="@filtro.Buscar" maxlength="200" placeholder="¿Qué necesitas hoy?" />
+        </div>
+        <div class="tp-campo">
+            <label for="categoria-producto">Categoría</label>
+            <select id="categoria-producto" name="categoriaId">
+                <option value="">Todas las categorías</option>
+                @foreach (var categoria in Model.Categorias)
+                {
+                    <option value="@categoria.Id" selected="@(filtro.CategoriaId == categoria.Id)">@categoria.Nombre</option>
+                }
+            </select>
+        </div>
+        <div class="tp-campo">
+            <label for="orden-producto">Ordenar por</label>
+            <select id="orden-producto" name="orden">
+                <option value="nombre" selected="@(filtro.Orden == "nombre")">Nombre</option>
+                <option value="precio-asc" selected="@(filtro.Orden == "precio-asc")">Menor precio</option>
+                <option value="precio-desc" selected="@(filtro.Orden == "precio-desc")">Mayor precio</option>
+            </select>
+        </div>
+        <input type="hidden" name="tamano" value="@filtro.Tamano" />
+        <button class="tp-boton tp-primario" type="submit">Filtrar</button>
+        <a class="tp-limpiar" asp-action="Detalle" asp-route-slug="@Model.Tienda.Slug">Limpiar</a>
+    </form>
+    @await Html.PartialAsync("_AccesoCompraFutura")
+    <p class="tp-aviso-carrito" id="carrito-aviso">Las compras en línea estarán disponibles próximamente.</p>
+    @if (pagina.Items.Length == 0)
+    {
+        <div class="tp-vacio">
+            <h3>No hay productos para mostrar en esta página</h3>
+            <p>Prueba otra búsqueda o consulta nuevamente el catálogo de la tienda.</p>
+            <a class="tp-boton tp-secundario" asp-action="Detalle" asp-route-slug="@Model.Tienda.Slug">Ver productos</a>
+        </div>
+    }
+    else
+    {
+        <div class="tp-productos">
+            @foreach (var producto in pagina.Items)
+            {
+                <article class="tp-producto">
+                    <div class="tp-producto-imagen">
+                        <img src="@(producto.ImagenPrincipal ?? Url.Content("~/images/producto-reemplazo.svg"))"
+                             data-logo-tienda data-reemplazo="@Url.Content("~/images/producto-reemplazo.svg")"
+                             alt="" loading="lazy" referrerpolicy="no-referrer" width="240" height="180" />
+                    </div>
+                    <div class="tp-producto-cuerpo">
+                        <span class="tp-sobretitulo">@producto.Categoria</span>
+                        <h3>@producto.Nombre</h3>
+                        @if (!string.IsNullOrWhiteSpace(producto.Descripcion))
+                        {
+                            <p class="tp-producto-descripcion">@producto.Descripcion</p>
+                        }
+                        <div class="tp-producto-precio"><strong>S/ @producto.Precio.ToString("N2", CultureInfo.GetCultureInfo("es-PE"))</strong><span>/ @producto.Unidad</span></div>
+                        @if (!producto.ControlaStock)
+                        {
+                            <p class="tp-producto-disponible">Consulta disponibilidad en tienda</p>
+                        }
+                        else if (producto.Disponible is null)
+                        {
+                            <p class="tp-producto-disponible">Disponibilidad por confirmar</p>
+                        }
+                        else if (producto.Disponible > 0)
+                        {
+                            <p class="tp-producto-disponible">Disponible @producto.Disponible.Value.ToString("0.###", CultureInfo.GetCultureInfo("es-PE")) @producto.Unidad</p>
+                        }
+                        else
+                        {
+                            <p class="tp-producto-disponible tp-sin-disponibilidad">Sin disponibilidad</p>
+                        }
+                        <button class="tp-boton tp-secundario" type="button" disabled aria-describedby="carrito-aviso">Agregar al carrito</button>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+    <nav class="tp-paginacion" aria-label="Páginas de productos">
+        <span>Página @pagina.Pagina · @pagina.Total productos</span>
+        <div>
+            @if (pagina.Pagina > 1)
+            {
+                <a class="tp-boton tp-secundario" asp-action="Detalle" asp-route-slug="@Model.Tienda.Slug"
+                   asp-route-categoriaId="@filtro.CategoriaId" asp-route-q="@filtro.Buscar" asp-route-orden="@filtro.Orden"
+                   asp-route-tamano="@filtro.Tamano" asp-route-pagina="@(pagina.Pagina - 1)" asp-fragment="catalogo">Anterior</a>
+            }
+            @if (pagina.Pagina < 100000 && (long)pagina.Pagina * pagina.Tamano < pagina.Total)
+            {
+                <a class="tp-boton tp-primario" asp-action="Detalle" asp-route-slug="@Model.Tienda.Slug"
+                   asp-route-categoriaId="@filtro.CategoriaId" asp-route-q="@filtro.Buscar" asp-route-orden="@filtro.Orden"
+                   asp-route-tamano="@filtro.Tamano" asp-route-pagina="@(pagina.Pagina + 1)" asp-fragment="catalogo">Siguiente</a>
+            }
+        </div>
+    </nav>
+</section>

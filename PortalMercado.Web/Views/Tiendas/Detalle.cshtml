@@ -1,0 +1,67 @@
+@model PortalMercado.Application.Tiendas.CatalogoTiendaPublico
+@{
+    Layout = "_LayoutPublico";
+    var tienda = Model.Tienda;
+    ViewData["Title"] = tienda.NombreComercial;
+}
+<nav class="tp-migas" aria-label="Ruta de navegación"><a asp-action="Directorio">Tiendas</a><span aria-hidden="true">/</span><span aria-current="page">@tienda.NombreComercial</span></nav>
+<header class="tp-perfil">
+    <div class="tp-perfil-logo">
+        <img src="@(tienda.LogoUrl ?? Url.Content("~/images/tienda-reemplazo.svg"))"
+             data-logo-tienda data-reemplazo="@Url.Content("~/images/tienda-reemplazo.svg")"
+             alt="Logo de @tienda.NombreComercial" referrerpolicy="no-referrer" width="140" height="140" />
+    </div>
+    <div><span class="tp-sobretitulo">@tienda.Mercado</span><h1>@tienda.NombreComercial</h1><p>Conoce nuestro negocio y prepara tu visita al mercado.</p></div>
+</header>
+<div class="tp-perfil-columnas">
+    <section class="tp-panel" aria-labelledby="sobre-tienda">
+        <span class="tp-sobretitulo">Comercio local</span>
+        <h2 id="sobre-tienda">Sobre nuestra tienda</h2>
+        <p class="tp-texto-largo">@(string.IsNullOrWhiteSpace(tienda.Descripcion) ? "Esta tienda todavía no ha compartido una descripción." : tienda.Descripcion)</p>
+    </section>
+    <section class="tp-panel" aria-labelledby="horario-tienda">
+        <h2 id="horario-tienda">Horario y contacto</h2>
+        <dl class="tp-datos">
+            <dt>Horario de atención</dt><dd class="tp-texto-largo">@(string.IsNullOrWhiteSpace(tienda.Horario) ? "Horario por confirmar" : tienda.Horario)</dd>
+            <dt>Mercado</dt><dd>@tienda.Mercado</dd>
+            @if (!string.IsNullOrWhiteSpace(tienda.Telefono))
+            {
+                <dt>Teléfono público</dt><dd>@tienda.Telefono</dd>
+            }
+            @if (!string.IsNullOrWhiteSpace(tienda.Correo))
+            {
+                <dt>Correo público</dt><dd>@tienda.Correo</dd>
+            }
+        </dl>
+    </section>
+</div>
+<section class="tp-panel tp-ubicacion-panel" aria-labelledby="ubicacion-tienda">
+    <span class="tp-sobretitulo">Visítanos en el mercado</span>
+    <h2 id="ubicacion-tienda">Dónde encontrarnos</h2>
+    @if (tienda.Ubicaciones.Length == 0)
+    {
+        <p class="tp-ubicacion-vacia">Ubicación de puestos por confirmar. Consulta el horario y los contactos públicos de la tienda.</p>
+    }
+    else
+    {
+        <div class="tp-ubicaciones">
+            @foreach (var ubicacion in tienda.Ubicaciones)
+            {
+                <article class="tp-ubicacion">
+                    <span class="tp-ubicacion-icono" aria-hidden="true">⌖</span>
+                    <div>
+                        <h3>Puesto @ubicacion.Puesto</h3>
+                        <p>@ubicacion.Mercado</p>
+                        <p>Sector @ubicacion.Sector</p>
+                        @if (!string.IsNullOrWhiteSpace(ubicacion.Referencia))
+                        {
+                            <p class="tp-ubicacion-referencia">@ubicacion.Referencia</p>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>
+<partial name="_CatalogoPublico" model="Model" />
+<a class="tp-volver" asp-action="Directorio">← Volver al directorio</a>

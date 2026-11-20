@@ -1,0 +1,53 @@
+# Matriz de cumplimiento del ciclo 3
+
+Corte documental: 20 de noviembre de 2026, bloques 01 a 11. Fuente: requerimiento del Programador B, ciclo 3, versión 1.0 del 14/11/2026.
+
+Estado: avance funcional local con clientes de demostración. La sección 2 permite simulaciones tras interfaces cuando faltan contratos. No se declara aceptación formal ni persistencia SQL de clientes.
+
+Verificado local: respaldado por ejecución/capturas o confirmación manual local. Demostración verificada: proveedor temporal en memoria, sin acreditar las transacciones SQL. Parcial: quedan componentes o evidencias pendientes.
+
+## Requerimientos funcionales
+
+| Codigo | Requisito | Estado | Implementacion | Evidencia | Pendiente |
+|---|---|---|---|---|---|
+| RF-B3-01 | Portada pública | Parcial | Portada y búsqueda integradas con tiendas/catálogo local; estados de carga, vacío y error. | ExploracionHttpTests; ExploracionPublicaServicioTests; capturas de portada SQL. | Mercados y categorías se derivan de tiendas/productos visibles; falta contrato para todos los mercados activos, incluidos los vacíos. |
+| RF-B3-02 | Navegación anónima | Verificado local | Rutas públicas de exploración, tiendas y productos sin exigir cuenta. | Pruebas HTTP anónimas y pruebas SQL de tiendas; capturas locales. | Validar también con datos y permisos del ambiente de aceptación; esto no acredita despliegue en nube. |
+| RF-B3-03 | Búsqueda global | Parcial | Producto, tienda y categoría; filtros, orden, totales y páginas. | Pruebas unitarias y HTTP, incluidos enlaces Siguiente/Anterior con todos los filtros; capturas y comprobación manual confirmada por el desarrollador. | Adaptador temporal: 100 tiendas, 2000 productos y 10 s. Falta consulta global autorizada y consistente para producción. |
+| RF-B3-04 | Registro de cliente | Demostración verificada; integración pendiente | Registro MVC/API operativo en Development con cuentas temporales @example.invalid y hash existente. | RegistroClienteServicioTests; ClientesApiTests; ClientesDemostracionTests; ClientesDemostracionHttpTests; recorrido manual. | Alta SQL autorizada, unicidad/rollback reales y documentos aprobados. |
+| RF-B3-05 | Identidad y cuenta | Parcial | Cuenta y perfil vinculados en memoria bajo exclusión mutua; hash existente; sin roles administrativos. | Pruebas de alta y duplicados simultáneos en memoria; prueba HTTP con servicios reales de demostración. | Transacción SQL Usuario + seguridad + Cliente + consentimientos + auditoría. La simulación no prueba rollback SQL. |
+| RF-B3-06 | Inicio y cierre de sesión | Verificado local con límites | Login/logout existente y retorno local; proveedor temporal de clientes con sesiones separadas por host. | AccesoClienteDestinoTests; regresión SQL previa; ClientesDemostracionHttpTests; recorrido manual. | Integrar cuenta cliente persistente. La demostración no autentica cuentas SQL ni proporciona MFA. |
+| RF-B3-07 | Verificación y recuperación | Demostración verificada con pendientes | Recuperación temporal por Pickup y cambio de contraseña con política/hash existentes; enlaces de un uso y 15 minutos. | 383 pruebas Clientes y 733 de solución reportadas aprobadas; recuperación/cambio confirmados manualmente. | Identidad SQL de clientes y decisión sobre confirmación inicial de correo; no se verifica un buzón externo en demo. |
+| RF-B3-08 | Perfil personal | Demostración verificada con pendientes | Perfil propio MVC/API; cambio de correo MVC con contraseña actual, confirmación local, CSRF y revocación de sesiones. | Pruebas del bloque 11 aprobadas según ejecución reportada; guardado de perfil y cambio de correo confirmados manualmente. | Contrato SQL de identidad/perfil, política de documentos y verificación externa de correo. |
+| RF-B3-09 | Direcciones | Demostración verificada; integración pendiente | CRUD MVC/API temporal, coordenadas opcionales y propiedad desde sesión. | Pruebas unitarias/HTTP; capturas de guardado, confirmación, eliminación y rechazo de dirección ajena. | Persistencia SQL autorizada y acceso cruzado comprobado también en SQL. |
+| RF-B3-10 | Dirección principal | Demostración verificada; integración pendiente | Cambio de principal bajo bloqueo en memoria; operación única al repositorio. | Pruebas simultáneas en memoria; capturas de cambio entre dos direcciones y selección final. | Transacción y concurrencia SQL con índice existente. El bloqueo de memoria no acredita consistencia entre procesos. |
+| RF-B3-11 | Consentimientos | Demostración verificada; integración pendiente | MVC/API con historial de términos, privacidad y promociones; autorización/retiro separados y versiones ficticias explícitas. | Pruebas de consentimientos; captura de aceptación y retiro con versión/fecha y vista móvil. | Textos/versiones aprobados, historial/auditoría persistentes y orden estable para eventos con igual fecha en contrato SQL. |
+| RF-B3-12 | Acceso a compra futura | Verificado local | Botón público Comprar (próximamente), autenticación, aviso y regreso local con filtros; productos mantienen carrito deshabilitado. | CompraFuturaPublicaTests; capturas de aviso y regreso a Mango con filtros. | Revalidar en aceptación; pedidos, carrito persistente y pagos corresponden al ciclo 4. |
+| RF-B3-13 | Responsive y accesibilidad | Verificado local con límites | Revisión visual a 390 por 858, etiquetas y foco; navegación por Tab, Shift Tab y Enter confirmada por el desarrollador. | Capturas de registro, perfil, dirección, cambio de correo, consentimiento y portal; confirmación manual de teclado. | Revalidar en ambiente de aceptación; esta revisión básica no acredita conformidad integral con WCAG. |
+| RF-B3-14 | Trazabilidad | Parcial | Contexto de actor/fecha/IP/correlación desde servidor; evidencia temporal y logs mínimos sin contraseñas. | Pruebas de contexto y aislamiento; cola de eventos temporal de demostración. | Auditoría SQL persistente, retención y permisos aprobados. Reiniciar borra la evidencia temporal. |
+
+## Criterios de aceptación
+
+| Codigo | Criterio | Estado | Evidencia | Pendiente |
+|---|---|---|---|---|
+| CA-01 | Navegación anónima por tiendas y productos publicados | Verificado local | Pruebas HTTP públicas + regresión SQL de tiendas; portada y catálogo locales. | Confirmar el mismo flujo en el ambiente de aceptación. |
+| CA-02 | Buscador correcto, paginado y sin datos privados | Parcial | Pruebas de búsqueda/proyección y enlaces HTTP de paginación; recorrido Siguiente/Anterior conservando filtros confirmado por el desarrollador. | Contrato global escalable y consistente; mercados/categorías activos sin tiendas/productos visibles pendientes. |
+| CA-03 | Registro crea una sola cuenta Usuario + Cliente | Demostración verificada; integración pendiente | Alta única y vínculo cuenta/perfil en memoria; pruebas de servicio, API y HTTP de demostración. | Acreditar filas vinculadas mediante contrato SQL autorizado. |
+| CA-04 | Duplicados/entradas inválidas no crean registros parciales | Parcial | Validación y duplicados simultáneos probados en memoria; sin escritura parcial en esa simulación. | Duplicados concurrentes y fallo intermedio con rollback SQL real. |
+| CA-05 | Login/logout y recuperación integrados | Demostración verificada con pendientes | Login/logout, cambio y recuperación de contraseña temporal confirmados manualmente; regresión SQL existente aprobada. | Identidad persistente de clientes y decisión sobre confirmación inicial de registro. |
+| CA-06 | Perfil propio exclusivamente | Demostración verificada; integración pendiente | Perfil MVC/API propio, pruebas negativas y guardado manual. | Propiedad y persistencia mediante contrato SQL aprobado. |
+| CA-07 | CRUD de direcciones y bloqueo de acceso ajeno | Demostración verificada; integración pendiente | CRUD de demostración y rechazo manual de /Cliente/Editar/2 desde otra cuenta; pruebas MVC/API. | Revalidar todas las mutaciones y propiedad dentro de SQL. |
+| CA-08 | Una principal activa incluso en concurrencia | Demostración verificada; integración pendiente | Una principal en pruebas concurrentes de memoria y recorrido manual con dos direcciones. | Concurrencia real entre procesos y transacción SQL. |
+| CA-09 | Consentimientos versionados; marketing opcional | Demostración verificada; integración pendiente | Capturas de aceptación/retiro con versión y fecha; pruebas de marketing opcional e historial. | Documentos aprobados y almacenamiento/auditoría persistentes. |
+| CA-10 | Escritorio/móvil y validaciones claras | Verificado local con límites | Capturas públicas/privadas a 390 por 858 y confirmación manual de navegación por teclado; pruebas HTTP de validaciones. | Repetir en ambiente de aceptación; sin auditoría integral de accesibilidad ni cobertura de todos los dispositivos. |
+| CA-11 | Acceso autenticado a compra sin pedidos ni pagos | Verificado local | Botón público, ruta protegida, aviso sin compra y retorno filtrado; pruebas y capturas manuales. | Revalidar en ambiente de aceptación; no habilitar pedidos ni pagos. |
+| CA-12 | Compilación, pruebas y ausencia de cambios fuera de alcance | Parcial | Salida reportada: 733 aprobadas, 0 errores, 0 omitidas y compilación correcta. Rama feature/b-clientes-portal-ciclo3 creada según salida Git. | Commit/subida/PR pendientes de confirmación y revisión de diff completo. El cambio acumulado incluye scripts locales del ciclo 2; no se añadió SQL de clientes del ciclo 3. |
+
+## Evidencia y límites
+
+El desarrollador reportó 383 pruebas Clientes aprobadas y 733 de solución aprobadas, sin errores ni omitidas. Pruebas finales: 22.1 s; compilación correcta: 24.5 s. No se recibió el TRX XML para inspección independiente. Los totales son acumulativos e incluyen ciclos anteriores, dobles y demostración.
+
+Se confirmaron manualmente perfil, direcciones, principal, rechazo de dirección ajena, consentimientos, retorno al catálogo, cambio de contraseña, recuperación local y cambio de correo. Se recibieron capturas móviles y confirmación de teclado y paginación. La confirmación verbal no se presenta como una captura adicional.
+
+La simulación guarda clientes, sesiones y tokens por proceso; se borran al detenerlo. Web y API no comparten almacén. Pickup guarda EML local; no envía mensajes por Internet ni acredita posesión de un buzón real. La confirmación inicial del correo de registro no está habilitada. El catálogo público reutiliza SQL local existente; la búsqueda global conserva límites temporales.
+
+Persisten dependencias de identidad/SQL, documentos aprobados y lecturas globales. La aprobación corresponde al revisor. Los documentos Word se preparan para la entrega; video, commit/subida y PR siguen pendientes de confirmación.

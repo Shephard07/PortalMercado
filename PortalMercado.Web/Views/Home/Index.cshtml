@@ -1,32 +1,51 @@
-@model PortalMercado.Web.Models.TechnicalHomeViewModel
-@{ ViewData["Title"] = "Inicio"; }
-
-<section class="pm-hero" aria-labelledby="titulo-inicio">
-    <span class="pm-eyebrow">Portal de administración</span>
-    <h1 id="titulo-inicio">@Model.ApplicationName</h1>
-    <p>Plataforma comercial multinegocio para mercados de abastos.</p>
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <a class="btn pm-hero-button" asp-controller="Cuenta" asp-action="Perfil">Ver mi perfil</a>
-    }
-    else
-    {
-        <a class="btn pm-hero-button" asp-controller="Cuenta" asp-action="Login">Iniciar sesión</a>
-    }
-</section>
-
-<section class="pm-home-status" aria-label="Estado técnico">
-    <div class="pm-panel pm-metric">
-        <h2>Aplicación web</h2>
-        <span class="pm-status pm-status-active">En ejecución</span>
-    </div>
-    <div class="pm-panel pm-metric">
-        <h2>Versión</h2>
-        <p>@Model.Version</p>
-    </div>
-    <div class="pm-panel pm-metric">
-        <h2>Ambiente</h2>
-        <p>@Model.EnvironmentName</p>
-    </div>
-</section>
-<p class="pm-description small mb-0">El diagnóstico de la API verifica la conexión a SQL Server.</p>
+@model PanelInicioModelo
+@{
+    ViewData["Title"] = "Inicio";
+    var autenticado = User.Identity?.IsAuthenticated == true;
+    if (!autenticado) { Layout = "_LayoutPublico"; }
+    var modulos = Model.Accesos.Where(a => a.Controlador != "Home").ToArray();
+    var coincidencias = modulos.Where(a => Model.Buscar is null ||
+        a.Nombre.Contains(Model.Buscar, StringComparison.OrdinalIgnoreCase) ||
+        a.Descripcion.Contains(Model.Buscar, StringComparison.OrdinalIgnoreCase)).ToArray();
+}
+@if (!autenticado)
+{
+    @await Component.InvokeAsync("PortadaPublica")
+}
+else
+{
+    <header class="pm-panel-cabecera">
+        <div><p class="pm-eyebrow">PANEL PRINCIPAL</p><h1>Tu espacio de trabajo</h1>
+            <p>Hola, @(User.Identity?.Name). Accede a las herramientas disponibles para tu cuenta.</p></div>
+        <a class="btn btn-primary" asp-controller="Tiendas" asp-action="Directorio">Ver tiendas públicas →</a>
+    </header>
+    <section class="pm-panel-bienvenida" aria-labelledby="titulo-accesos">
+        <div><span class="pm-eyebrow">TODO A MANO</span><h2 id="titulo-accesos">Organiza tu trabajo desde aquí</h2>
+            <p>Gestiona tus negocios y tu catálogo con los accesos de tu cuenta.</p></div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M3 10 5 3h14l2 7M4 13v8h16v-8M9 21v-6h6v6M3 10c0 4 6 4 6 0 0 4 6 4 6 0 0 4 6 4 6 0" /></svg>
+    </section>
+    <section aria-labelledby="titulo-modulos" class="pm-modulos">
+        <div class="pm-modulos-titulo"><h2 id="titulo-modulos">@(Model.Buscar is null ? "Accesos disponibles" : "Resultados de búsqueda")</h2>
+            @if (Model.Buscar is not null) { <a asp-controller="Home" asp-action="Index">Ver todos</a> }</div>
+        <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+        @if (coincidencias.Length == 0)
+        {
+            <p class="pm-panel p-4" role="status">No encontramos módulos disponibles con esa búsqueda.</p>
+        }
+        else
+        {
+            <div class="pm-accesos-cuadricula">
+                @foreach (var acceso in coincidencias)
+                {
+                    <a class="pm-acceso-tarjeta" asp-controller="@acceso.Controlador" asp-action="@acceso.Accion">
+                        <span class="pm-acceso-icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="@acceso.Icono" /></svg></span>
+                        <span class="pm-acceso-grupo">@acceso.Grupo</span><h3>@acceso.Nombre</h3>
+                        <p>@acceso.Descripcion</p><span class="pm-acceso-abrir">Abrir módulo →</span>
+                    </a>
+                }
+            </div>
+        }
+    </section>
+    <section class="pm-panel-info"><h2>Descubre el mercado</h2><p>Consulta los perfiles comerciales, horarios y productos de las tiendas.</p>
+        <a asp-controller="Tiendas" asp-action="Directorio">Ir al directorio de tiendas →</a></section>
+}

@@ -101,9 +101,14 @@ public sealed class NegocioConfiguration : IEntityTypeConfiguration<Negocio>
     public void Configure(EntityTypeBuilder<Negocio> builder)
     {
         builder.ToTable("Negocio", "dbo", table =>
+        {
+            // SQL Server no admite OUTPUT directo sobre tablas con triggers.
+            // Usar el guardado compatible con tr_TiendaLocal_Version y recuperar la identidad.
+            table.UseSqlOutputClause(false);
             table.HasCheckConstraint(
                 "CK_Negocio_Estado",
-                "[Estado] IN ('BAJA','SUSPENDIDO','ACTIVO','PENDIENTE')"));
+                "[Estado] IN ('BAJA','SUSPENDIDO','ACTIVO','PENDIENTE')");
+        });
 
         builder.HasKey(x => x.IdNegocio);
         builder.Property(x => x.IdNegocio).UseIdentityColumn();

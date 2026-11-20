@@ -1,0 +1,13 @@
+@model PortalMercado.Application.Clientes.ClienteDireccion
+@{ Layout = "_LayoutPublico"; ViewData["Title"] = "Eliminar dirección"; }
+<section class="rc-panel">
+    <h1>Eliminar dirección</h1>
+    <p>¿Deseas eliminar esta dirección?</p>
+    <p><strong>@(Model.Datos.Etiqueta ?? "Mi dirección")</strong><br />@Model.Datos.Direccion</p>
+    @if (Model.Principal) { <p>Es tu dirección principal. Después podrás elegir otra desde la lista.</p> }
+    <form asp-action="ConfirmarEliminar" method="post">
+        <input name="id" type="hidden" value="@Model.IdDireccion" />
+        <button type="submit">Eliminar dirección</button>
+    </form>
+    <a asp-action="Direcciones">Cancelar</a>
+</section>

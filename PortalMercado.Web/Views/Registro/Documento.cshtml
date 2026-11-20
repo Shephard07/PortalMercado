@@ -1,0 +1,8 @@
+@model PortalMercado.Infrastructure.Clientes.DocumentoRegistro
+@{ Layout = "_LayoutPublico"; }
+<article class="rc-panel">
+    <h1>@ViewData["Title"]</h1>
+    <p>Versión: @Model.Version</p>
+    <div class="rc-documento">@Model.Texto</div>
+    <p><a asp-action="Index">Volver al registro</a></p>
+</article>

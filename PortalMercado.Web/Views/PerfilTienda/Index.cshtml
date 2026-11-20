@@ -1,0 +1,20 @@
+@model PortalMercado.Application.Administration.BusinessContext
+@{ ViewData["Title"] = "Mis tiendas"; }
+<p class="pm-eyebrow">TIENDAS</p>
+<h1>Perfil comercial</h1>
+<p>Selecciona el negocio cuyo perfil quieres editar.</p>
+@if (Model.Disponibles.Length == 0)
+{
+    <p>No tienes negocios disponibles.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table"><thead><tr><th>Negocio</th><th>Acción</th></tr></thead><tbody>
+        @foreach (var negocio in Model.Disponibles)
+        {
+            <tr><td>@negocio.Nombre</td><td><a asp-action="Editar" asp-route-idNegocio="@negocio.Id">Editar perfil comercial</a></td></tr>
+        }
+        </tbody></table>
+    </div>
+}

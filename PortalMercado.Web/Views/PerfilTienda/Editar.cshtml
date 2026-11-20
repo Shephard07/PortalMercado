@@ -1,0 +1,54 @@
+@model PortalMercado.Application.Tiendas.PerfilTienda
+@inject PortalMercado.Infrastructure.Tiendas.TiendasModo Modo
+@{ ViewData["Title"] = "Editar perfil comercial"; }
+<p class="pm-eyebrow">TIENDAS · PERFIL COMERCIAL</p>
+<h1>@Model.NombreComercial</h1>
+@if (Modo.Demostracion)
+{
+    <div class="alert alert-warning">Demostración: editas la tienda ficticia vinculada al negocio @Model.IdNegocio.
+        Los cambios se conservan mientras esta aplicación esté en ejecución y se reinician al detenerla.</div>
+}
+else if (Modo.SqlLocal)
+{
+    <div class="alert alert-info">Base local de pruebas: los cambios se guardan en SQL Server y se conservan al reiniciar.</div>
+}
+@if (TempData["PerfilGuardado"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+<p><a asp-action="Index">Volver a mis tiendas</a> · <a asp-controller="Tiendas" asp-action="Detalle" asp-route-slug="@Model.Slug">Ver tienda pública</a></p>
+<form method="post" asp-action="Editar" asp-route-idNegocio="@Model.IdNegocio" class="pm-card p-4">
+    <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+    <input type="hidden" name="Version" value="@Model.Datos.Version" />
+    <div class="mb-3">
+        <label class="form-label" for="Descripcion">Descripción comercial</label>
+        <textarea class="form-control" id="Descripcion" name="Descripcion" rows="4" maxlength="4000">@Model.Datos.Descripcion</textarea>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="LogoUrl">URL HTTPS del logo</label>
+        <input class="form-control" id="LogoUrl" name="LogoUrl" type="url" maxlength="500" value="@Model.Datos.LogoUrl" placeholder="https://…" />
+        <p class="form-text">Usa un enlace directo a una imagen. Puedes dejarlo vacío para usar la imagen de reemplazo.</p>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="Horario">Horario de atención</label>
+        <input class="form-control" id="Horario" name="Horario" maxlength="500" value="@Model.Datos.Horario" />
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label" for="Telefono">Teléfono comercial</label>
+            <input class="form-control" id="Telefono" name="Telefono" type="tel" maxlength="30" value="@Model.Datos.Telefono" />
+            <p class="form-text">@(Model.TelefonoPublico ? "Su publicación está autorizada." : "Este teléfono permanece privado.")</p>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label" for="Correo">Correo comercial</label>
+            <input class="form-control" id="Correo" name="Correo" type="email" maxlength="254" value="@Model.Datos.Correo" />
+            <p class="form-text">@(Model.CorreoPublico ? "Su publicación está autorizada." : "Este correo permanece privado.")</p>
+        </div>
+    </div>
+    <button class="btn btn-primary" type="submit">Guardar perfil</button>
+    <a class="btn btn-outline-secondary" asp-action="Editar" asp-route-idNegocio="@Model.IdNegocio">Recargar perfil</a>
+</form>
+@if (Model.UltimoCambio is { } cambio)
+{
+    <p class="mt-3">Último cambio: @cambio.FechaUtc.ToString("yyyy-MM-dd HH:mm:ss") UTC · Usuario @cambio.Actor.</p>
+}
