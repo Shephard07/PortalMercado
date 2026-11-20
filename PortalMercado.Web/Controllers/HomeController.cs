@@ -5,14 +5,16 @@ namespace PortalMercado.Web.Controllers;
 
 public class HomeController : Controller
 {
-    public IActionResult Index([FromServices] IWebHostEnvironment environment)
+    [HttpGet, ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public IActionResult Index(string? q)
     {
-        return View(new TechnicalHomeViewModel
+        var buscar = string.IsNullOrWhiteSpace(q) ? null : q.Trim();
+        if (buscar?.Length > 80)
         {
-            Version = typeof(HomeController).Assembly.GetName().Version?.ToString()
-                ?? "No disponible",
-            EnvironmentName = environment.IsDevelopment() ? "Desarrollo" : "Producción"
-        });
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            ModelState.AddModelError("q", "La búsqueda admite hasta 80 caracteres.");
+        }
+        return View(new PanelInicioModelo(MenuPrincipal.Crear(User), buscar));
     }
 
     public IActionResult Privacy() => View();

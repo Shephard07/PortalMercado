@@ -1,0 +1,32 @@
+@model PortalMercado.Application.Clientes.ClienteDireccionDatos
+@{
+    Layout = "_LayoutPublico";
+    var id = ViewData["IdDireccion"] as long?;
+    ViewData["Title"] = id.HasValue ? "Editar dirección" : "Agregar dirección";
+}
+<section class="rc-panel">
+    <h1>@ViewData["Title"]</h1>
+    <form asp-action="Guardar" method="post">
+        <div asp-validation-summary="All" class="rc-error" role="alert"></div>
+        @if (id.HasValue) { <input name="id" type="hidden" value="@id" /> }
+        <label asp-for="Etiqueta">Nombre de la dirección (opcional)</label>
+        <input asp-for="Etiqueta" maxlength="80" placeholder="Por ejemplo, Casa" />
+        <label asp-for="Direccion">Dirección</label>
+        <input asp-for="Direccion" maxlength="300" autocomplete="street-address" required />
+        <label asp-for="Referencia">Referencia (opcional)</label>
+        <input asp-for="Referencia" maxlength="250" />
+        <label asp-for="Distrito">Distrito (opcional)</label>
+        <input asp-for="Distrito" maxlength="120" autocomplete="address-level3" />
+        <label asp-for="Provincia">Provincia (opcional)</label>
+        <input asp-for="Provincia" maxlength="120" autocomplete="address-level2" />
+        <label asp-for="Departamento">Departamento (opcional)</label>
+        <input asp-for="Departamento" maxlength="120" autocomplete="address-level1" />
+        <p id="coordenadas-ayuda">Coordenadas opcionales: completa ambas o deja ambas vacías. Usa hasta siete decimales.</p>
+        <label asp-for="Latitud">Latitud</label>
+        <input asp-for="Latitud" type="text" inputmode="decimal" aria-describedby="coordenadas-ayuda" />
+        <label asp-for="Longitud">Longitud</label>
+        <input asp-for="Longitud" type="text" inputmode="decimal" aria-describedby="coordenadas-ayuda" />
+        <button type="submit">Guardar dirección</button>
+    </form>
+    <a asp-action="Direcciones">Cancelar y volver a mis direcciones</a>
+</section>

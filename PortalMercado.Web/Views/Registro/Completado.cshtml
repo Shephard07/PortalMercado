@@ -1,0 +1,14 @@
+@{ Layout = "_LayoutPublico"; ViewData["Title"] = "Registro completado"; }
+<section class="rc-panel">
+    <h1>Registro completado</h1>
+    @if ((bool)ViewData["Confirmacion"]!)
+    {
+        <p>Revisa tu correo y sigue las instrucciones de confirmación antes de iniciar sesión.</p>
+    }
+    else
+    {
+        <p>Tu cuenta está creada. Ya puedes iniciar sesión.</p>
+    }
+    <a asp-controller="Cuenta" asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]">Iniciar sesión</a>
+    <p><a asp-controller="Explorar" asp-action="Inicio">Seguir explorando</a></p>
+</section>

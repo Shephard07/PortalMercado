@@ -6,4 +6,4 @@
 <ul class="font-monospace">
 @foreach (var code in Model) { <li class="user-select-all">@code</li> }
 </ul>
-<a asp-action="Perfil" class="btn btn-primary">Ya guardé mis códigos</a>
+<a href="@PortalMercado.Application.Clientes.DestinoCliente.Normalizar(ViewData["ReturnUrl"] as string ?? "/")" class="btn btn-primary">Ya guardé mis códigos</a>

@@ -1,0 +1,17 @@
+@model PortalMercado.Application.Clientes.CambioCorreoClienteSolicitud
+@{ Layout = "_LayoutPublico"; ViewData["Title"] = "Cambiar correo"; }
+<section class="rc-panel">
+<h1>Cambiar correo</h1>
+<p>Tu correo actual seguirá funcionando hasta que confirmes el cambio. Después tendrás que iniciar sesión con el nuevo correo.</p>
+<form method="post" asp-action="Cambiar">
+<div asp-validation-summary="All" class="rc-error" role="alert"></div>
+<label asp-for="Correo">Nuevo correo</label>
+<input asp-for="Correo" type="email" autocomplete="email" maxlength="254" required />
+<label asp-for="ConfirmarCorreo">Repetir nuevo correo</label>
+<input asp-for="ConfirmarCorreo" type="email" autocomplete="email" maxlength="254" required />
+<label for="PasswordActual">Contraseña actual</label>
+<input id="PasswordActual" name="PasswordActual" type="password" autocomplete="current-password" maxlength="128" required />
+<button type="submit">Solicitar cambio de correo</button>
+</form>
+<a asp-controller="Cliente" asp-action="Perfil">Volver a mi perfil de cliente</a>
+</section>

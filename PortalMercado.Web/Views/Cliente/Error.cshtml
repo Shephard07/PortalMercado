@@ -1,0 +1,17 @@
+@model int
+@{
+    Layout = "_LayoutPublico"; ViewData["Title"] = "Mi cuenta de cliente";
+    var mensaje = Model switch {
+        403 => "Tu cuenta no tiene un perfil de cliente disponible.",
+        404 => "La dirección no está disponible.",
+        400 => "Revisa los datos e inténtalo de nuevo.",
+        409 => "La información cambió. Recarga tus direcciones antes de volver a intentarlo.",
+        _ => "Tu perfil de cliente no está disponible en este momento. Inténtalo más tarde."
+    };
+}
+<section class="rc-panel">
+    <h1>Mi cuenta de cliente</h1>
+    <p role="alert">@mensaje</p>
+    <p><a asp-controller="Explorar" asp-action="Inicio">Seguir explorando</a></p>
+    <a asp-controller="Cuenta" asp-action="Perfil">Volver a los datos de acceso</a>
+</section>

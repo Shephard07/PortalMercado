@@ -1,0 +1,15 @@
+@{
+    var regreso = Context.Request.PathBase.ToString() + Context.Request.Path.ToString() + Context.Request.QueryString.ToString();
+    if (Context.Request.Path.StartsWithSegments("/tiendas")) regreso += "#catalogo";
+}
+<aside class="ep-compra-futura" aria-label="Compras en próximos ciclos">
+    <div>
+        <h2>Compras en línea</h2>
+        <p>Próximamente podrás comprar desde el portal. Por ahora, consulta productos y precios.</p>
+        @if (User.Identity?.IsAuthenticated != true)
+        {
+            <p>Para acceder al próximo flujo te pediremos iniciar sesión.</p>
+        }
+    </div>
+    <a class="tp-boton tp-primario" asp-controller="Compras" asp-action="Preparar" asp-route-returnUrl="@regreso" data-compra-futura>Comprar (próximamente)</a>
+</aside>

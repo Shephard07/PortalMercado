@@ -26,7 +26,7 @@ public sealed class MfaWebTests
         Assert.Contains("Configura la", setup);
         var verify = await client.PostAsync("/Cuenta/ConfirmarMfa", Form(Token(setup), ("Code", "123456")));
         Assert.Equal(HttpStatusCode.Redirect, verify.StatusCode);
-        Assert.Contains("Perfil", verify.Headers.Location!.ToString());
+        Assert.Contains(verify.Headers.Location!.ToString(), new[] { "/", "/Home", "/Home/Index" });
         Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/Cuenta/Perfil")).StatusCode);
     }
     [Fact]

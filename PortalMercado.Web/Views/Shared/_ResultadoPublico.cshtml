@@ -1,0 +1,24 @@
+@using System.Globalization
+@model PortalMercado.Application.Exploracion.ExploracionResultado
+@{ var esProducto = Model.Tipo == "producto"; var etiqueta = esProducto ? "Producto" : Model.Tipo == "tienda" ? "Tienda" : "Categoría"; }
+<article class="ep-resultado">
+    <a href="@Model.Destino" class="ep-imagen" tabindex="-1" aria-hidden="true">
+        <img src="@(Model.Imagen ?? Url.Content(esProducto ? "~/images/producto-reemplazo.svg" : "~/images/tienda-reemplazo.svg"))"
+             data-logo-tienda data-reemplazo="@Url.Content(esProducto ? "~/images/producto-reemplazo.svg" : "~/images/tienda-reemplazo.svg")"
+             alt="" width="280" height="180" loading="lazy" referrerpolicy="no-referrer" />
+    </a>
+    <div class="ep-resultado-cuerpo">
+        <span class="tp-sobretitulo">@etiqueta @(Model.Categoria is null ? "" : "· " + Model.Categoria)</span>
+        <h3><a href="@Model.Destino">@Model.Nombre</a></h3>
+        @if (Model.Tipo != "categoria") { <p class="ep-origen">@Model.Tienda<br />@Model.Mercado</p> }
+        @if (esProducto)
+        {
+            <p class="ep-precio"><strong>S/ @Model.Precio?.ToString("N2", CultureInfo.GetCultureInfo("es-PE"))</strong> <span>/ @Model.Unidad</span></p>
+            @if (!Model.ControlaStock) { <p class="ep-stock">Consulta disponibilidad en tienda</p> }
+            else if (Model.Disponible is > 0) { <p class="ep-stock">Disponible @Model.Disponible?.ToString("0.##", CultureInfo.GetCultureInfo("es-PE")) @Model.Unidad</p> }
+            else { <p class="ep-stock ep-sin-stock">Sin disponibilidad</p> }
+            <button type="button" class="tp-boton tp-deshabilitado" disabled aria-describedby="ep-compra-aviso">Agregar al carrito</button>
+        }
+        else { <a class="ep-ver" href="@Model.Destino">@(Model.Tipo == "tienda" ? "Ver tienda →" : "Ver productos →")</a> }
+    </div>
+</article>

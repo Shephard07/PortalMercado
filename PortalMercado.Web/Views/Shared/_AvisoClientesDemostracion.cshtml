@@ -1,0 +1,10 @@
+@inject PortalMercado.Infrastructure.Clientes.Demostracion.ClientesModo ClientesModo
+@if (ClientesModo.Demostracion)
+{
+    <aside class="pm-demo-clientes" role="note">
+        <strong>Clientes en demostración · datos temporales</strong>
+        <p>Usa nombres y datos ficticios, con correos terminados en @@example.invalid. Las cuentas se borran al detener esta aplicación.</p>
+        <p>Este acceso solo reconoce clientes de demostración. No envía correos por Internet ni permite compras. Los enlaces de seguridad se prueban con archivos de correo locales. Los documentos mostrados son textos de prueba.</p>
+        <a asp-controller="Registro" asp-action="Index">Crear cliente de prueba</a>
+    </aside>
+}

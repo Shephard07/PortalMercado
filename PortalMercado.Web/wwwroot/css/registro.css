@@ -1,0 +1,17 @@
+/* Formularios públicos de cliente: sin dependencias de Bootstrap. */
+.rc-panel { max-width: 42rem; margin: 2rem auto; padding: clamp(1rem, 4vw, 2rem); background: #fff; border: 1px solid #d5e3dc; border-radius: 1rem; overflow-wrap: anywhere; }
+.rc-panel h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.2; }
+.rc-panel form { display: grid; gap: .6rem; margin-block: 1.5rem; }
+.rc-panel input:not([type=checkbox]):not([type=hidden]) { box-sizing: border-box; width: 100%; min-width: 0; padding: .8rem; border: 1px solid #a8c4b8; border-radius: .5rem; font: inherit; }
+.rc-panel label { font-weight: 600; }
+.rc-panel button { min-height: 44px; padding: .8rem; border: 0; border-radius: .5rem; background: #176b4c; color: #fff; font: inherit; cursor: pointer; }
+.rc-consentimiento { display: flex; align-items: flex-start; gap: .7rem; margin-block: .5rem; }
+.rc-consentimiento input { flex-shrink: 0; width: 1.2rem; height: 1.2rem; }
+.rc-consentimiento label { font-weight: 400; }
+.rc-panel :focus-visible { outline: 3px solid #aa6500; outline-offset: 3px; }
+.rc-aviso { padding: 1rem; background: #fff3d6; border-radius: .5rem; }
+.rc-error { color: #9e2517; }
+.rc-documento { white-space: pre-wrap; }
+
+.rc-direccion { border: 1px solid #d5e3dc; border-radius: .75rem; padding: 1rem; margin-block: 1rem; }
+.rc-direccion h2 { font-size: 1.25rem; }

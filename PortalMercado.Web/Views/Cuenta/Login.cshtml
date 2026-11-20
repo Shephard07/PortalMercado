@@ -23,8 +23,9 @@
     <section class="pm-auth-form" aria-labelledby="titulo-acceso">
         <span class="pm-eyebrow">Tu cuenta</span>
         <h1 id="titulo-acceso">Iniciar sesión</h1>
-        <p class="pm-description">Ingresa con la cuenta asignada por tu administrador.</p>
+        <p class="pm-description">Accede a tu cuenta de PortalMercado.</p>
         <form asp-controller="Cuenta" asp-action="Login" method="post">
+            <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
             <div asp-validation-summary="All" class="text-danger" role="alert"></div>
             <div class="mb-3">
                 <label asp-for="Correo" class="form-label">Correo electrónico</label>
@@ -37,5 +38,6 @@
             <button class="btn btn-primary w-100" type="submit">Iniciar sesión</button>
         </form>
         <a class="pm-recovery-link" asp-controller="Password" asp-action="Recuperar">Olvidé mi contraseña</a>
+        <a class="pm-recovery-link" asp-controller="Registro" asp-action="Index" asp-route-returnUrl="@ViewData["ReturnUrl"]">Crear cuenta de cliente</a>
     </section>
 </div>

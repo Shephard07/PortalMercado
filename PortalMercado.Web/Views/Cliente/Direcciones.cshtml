@@ -1,0 +1,26 @@
+@model PortalMercado.Application.Clientes.ClienteDireccion[]
+@{ Layout = "_LayoutPublico"; ViewData["Title"] = "Mis direcciones"; }
+<section class="rc-panel">
+    <h1>Mis direcciones</h1>
+    @if (TempData["ClienteMensaje"] is string mensaje) { <p role="status">@mensaje</p> }
+    <p><a asp-action="Nueva">Agregar dirección</a> · <a asp-action="Perfil">Volver a mi perfil</a></p>
+    @if (Model.Length == 0) { <p>Todavía no tienes direcciones guardadas.</p> }
+    @foreach (var direccion in Model)
+    {
+        <article class="rc-direccion">
+            <h2>@(direccion.Datos.Etiqueta ?? "Mi dirección")</h2>
+            @if (direccion.Principal) { <p><strong>Dirección principal</strong></p> }
+            <p>@direccion.Datos.Direccion</p>
+            <p>@string.Join(", ", new[] { direccion.Datos.Distrito, direccion.Datos.Provincia, direccion.Datos.Departamento }.Where(x => !string.IsNullOrWhiteSpace(x)))</p>
+            @if (!string.IsNullOrWhiteSpace(direccion.Datos.Referencia)) { <p>Referencia: @direccion.Datos.Referencia</p> }
+            <p><a asp-action="Editar" asp-route-id="@direccion.IdDireccion">Editar</a> · <a asp-action="Eliminar" asp-route-id="@direccion.IdDireccion">Eliminar</a></p>
+            @if (!direccion.Principal)
+            {
+                <form asp-action="Principal" method="post">
+                    <input name="id" type="hidden" value="@direccion.IdDireccion" />
+                    <button type="submit">Elegir como principal</button>
+                </form>
+            }
+        </article>
+    }
+</section>

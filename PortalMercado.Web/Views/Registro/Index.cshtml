@@ -1,0 +1,56 @@
+@model PortalMercado.Application.Clientes.RegistroClienteSolicitud
+@using PortalMercado.Infrastructure.Clientes
+@{
+    Layout = "_LayoutPublico";
+    ViewData["Title"] = "Crear cuenta";
+    var documentos = (DocumentacionRegistro)ViewData["Documentos"]!;
+    var disponible = (bool)ViewData["Disponible"]!;
+}
+<section class="rc-panel" aria-labelledby="registro-titulo">
+    <span class="tp-ceja">Tu cuenta de cliente</span>
+    <h1 id="registro-titulo">Crea tu cuenta</h1>
+    <p>Puedes explorar las tiendas y sus productos sin registrarte.</p>
+    @if (!disponible)
+    {
+        <div class="rc-aviso" role="status">El registro no está disponible en este momento. Puedes seguir consultando el catálogo público.</div>
+    }
+    else
+    {
+        <form asp-action="Index" method="post">
+            <div asp-validation-summary="All" role="alert" class="rc-error"></div>
+            <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+            <input asp-for="VersionTerminos" type="hidden" />
+            <input asp-for="VersionPrivacidad" type="hidden" />
+            <input asp-for="VersionPromociones" type="hidden" />
+            <label asp-for="Nombre">Nombre completo</label>
+            <input asp-for="Nombre" autocomplete="name" maxlength="150" required />
+            <label asp-for="Correo">Correo electrónico</label>
+            <input asp-for="Correo" type="email" autocomplete="email" maxlength="254" required />
+            <label asp-for="Telefono">Teléfono (opcional)</label>
+            <input asp-for="Telefono" type="tel" autocomplete="tel" maxlength="30" />
+            <label for="Password">Contraseña</label>
+            <input name="Password" id="Password" type="password" autocomplete="new-password" minlength="12" maxlength="128" aria-describedby="password-ayuda" required />
+            <p id="password-ayuda">Usa entre 12 y 128 caracteres, con mayúsculas, minúsculas, números y símbolos.</p>
+            <label for="ConfirmarPassword">Repite la contraseña</label>
+            <input name="ConfirmarPassword" id="ConfirmarPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" required />
+            <div class="rc-consentimiento">
+                <input asp-for="AceptaTerminos" />
+                <label asp-for="AceptaTerminos">Acepto los <a asp-action="Documento" asp-route-tipo="terminos" target="_blank" rel="noopener">términos y condiciones (abre otra pestaña)</a>.</label>
+            </div>
+            <div class="rc-consentimiento">
+                <input asp-for="AceptaPrivacidad" />
+                <label asp-for="AceptaPrivacidad">Acepto la <a asp-action="Documento" asp-route-tipo="privacidad" target="_blank" rel="noopener">política de privacidad (abre otra pestaña)</a>.</label>
+            </div>
+            @if (documentos.Promociones is not null)
+            {
+                <div class="rc-consentimiento">
+                    <input asp-for="AceptaPromociones" />
+                    <label asp-for="AceptaPromociones">Deseo recibir promociones (opcional). <a asp-action="Documento" asp-route-tipo="promociones" target="_blank" rel="noopener">Consultar condiciones (abre otra pestaña)</a>.</label>
+                </div>
+            }
+            <button type="submit">Crear cuenta</button>
+        </form>
+    }
+    <p>¿Ya tienes cuenta? <a asp-controller="Cuenta" asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]">Iniciar sesión</a></p>
+    <a asp-controller="Explorar" asp-action="Inicio">Seguir explorando</a>
+</section>

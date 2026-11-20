@@ -1,0 +1,12 @@
+@model PortalMercado.Web.Models.TiendasErrorModelo
+@{
+    Layout = "_LayoutPublico";
+    ViewData["Title"] = Model.Estado == 404 ? "Tienda no encontrada" : "Consulta no disponible";
+}
+<section class="tp-vacio tp-error">
+    <span class="tp-sobretitulo">PortalMercado · @Model.Estado</span>
+    <h1>@ViewData["Title"]</h1>
+    <p>@Model.Mensaje</p>
+    <a class="tp-boton tp-primario" asp-controller="Tiendas" asp-action="Directorio">Volver al directorio</a>
+    <a class="tp-volver" asp-controller="Home" asp-action="Index">Ir al inicio del sistema</a>
+</section>

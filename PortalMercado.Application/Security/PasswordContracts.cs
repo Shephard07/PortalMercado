@@ -37,3 +37,9 @@ public interface IRecoveryDelivery
     void CheckConfiguration();
     Task DeliverAsync(string recipient, Uri resetLink, CancellationToken ct);
 }
+
+public interface IAccountDelivery
+{
+    void CheckConfiguration();
+    Task DeliverMessageAsync(string recipient, string subject, string body, CancellationToken ct);
+}
